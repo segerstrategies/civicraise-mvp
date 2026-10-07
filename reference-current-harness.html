@@ -1,0 +1,1027 @@
+<!DOCTYPE html>
+
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=publicSans:wght@100..900&family=sourceSerif4:wght@100..900&display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{colors:{"on-primary-container":"#7c839b","on-surface-variant":"#45464d","secondary":"#0051d5","on-secondary":"#ffffff","surface-container-high":"#dce9ff","tertiary-container":"#002114","on-primary-fixed":"#131b2e","surface-tint":"#565e74","secondary-container":"#316bf3","outline":"#76777d","surface-container-low":"#eff4ff","on-tertiary-fixed-variant":"#005137","surface-variant":"#d3e4fe","surface-dim":"#cbdbf5","surface-container":"#e5eeff","on-error":"#ffffff","on-tertiary-container":"#069669","surface-bright":"#f8f9ff","secondary-fixed-dim":"#b4c5ff","primary-fixed-dim":"#bec6e0","primary-fixed":"#dae2fd","surface-container-highest":"#d3e4fe","inverse-surface":"#213145","on-tertiary-fixed":"#002114","background":"#f8f9ff","secondary-fixed":"#dbe1ff","surface":"#f8f9ff","primary":"#000000","outline-variant":"#c6c6cd","on-primary-fixed-variant":"#3f465c","on-primary":"#ffffff","inverse-on-surface":"#eaf1ff","surface-container-lowest":"#ffffff","tertiary":"#000000","primary-container":"#131b2e","on-secondary-fixed":"#00174b","tertiary-fixed-dim":"#68dba9","tertiary-fixed":"#85f8c4","on-tertiary":"#ffffff","on-surface":"#0b1c30","error-container":"#ffdad6","error":"#ba1a1a","on-secondary-fixed-variant":"#003ea8","on-error-container":"#93000a","on-background":"#0b1c30","inverse-primary":"#bec6e0","on-secondary-container":"#fefcff"},borderRadius:{"DEFAULT":"0.125rem","lg":"0.25rem","xl":"0.5rem","full":"0.75rem"},spacing:{"space-xl":"2rem","space-xxs":"0.125rem","space-sm":"0.5rem","gutter-mobile":"1rem","space-3xl":"4.5rem","space-2xl":"3rem","container-max":"75rem","space-md":"1rem","gutter-desktop":"1.5rem","space-lg":"1.5rem","space-xs":"0.25rem"},fontFamily:{"headline-lg-mobile":["sourceSerif4"],"body-lg":["publicSans"],"title-md":["publicSans"],"display-hero-mobile":["sourceSerif4"],"code-legislative":["jetbrainsMono"],"label-caps":["publicSans"],"headline-sm":["sourceSerif4"],"display-hero":["sourceSerif4"],"body-md":["publicSans"],"body-sm":["publicSans"],"headline-lg":["sourceSerif4"],"headline-md":["sourceSerif4"]},fontSize:{"headline-lg-mobile":["26px",{"lineHeight":"34px","letterSpacing":"-0.01em","fontWeight":"600"}],"body-lg":["18px",{"lineHeight":"28px","fontWeight":"400"}],"title-md":["16px",{"lineHeight":"24px","letterSpacing":"0.005em","fontWeight":"600"}],"display-hero-mobile":["34px",{"lineHeight":"40px","letterSpacing":"-0.015em","fontWeight":"600"}],"code-legislative":["12px",{"lineHeight":"16px","letterSpacing":"0.02em","fontWeight":"500"}],"label-caps":["11px",{"lineHeight":"14px","letterSpacing":"0.06em","fontWeight":"700"}],"headline-sm":["20px",{"lineHeight":"28px","fontWeight":"600"}],"display-hero":["48px",{"lineHeight":"56px","letterSpacing":"-0.02em","fontWeight":"600"}],"body-md":["15px",{"lineHeight":"22px","fontWeight":"400"}],"body-sm":["13px",{"lineHeight":"18px","fontWeight":"400"}],"headline-lg":["32px",{"lineHeight":"40px","letterSpacing":"-0.01em","fontWeight":"600"}],"headline-md":["24px",{"lineHeight":"32px","letterSpacing":"-0.005em","fontWeight":"600"}]}}}};</script></head><body class="bg-surface font-body-md text-body-md text-on-surface"><aside class="fixed left-0 top-0 h-full w-72 bg-surface-container-low shadow-[0_1px_8px_rgba(0,0,0,0.04)] z-50 flex flex-col justify-between pt-6 pb-6"><div class="flex flex-col gap-6"><div class="px-6 flex items-center justify-between"><div class="flex items-center gap-3"><div class="w-9 h-9 rounded bg-primary text-on-primary flex items-center justify-center font-headline-md text-headline-md">CR</div><div><span class="block font-title-md text-title-md tracking-tight text-on-surface">CIVICRAISE</span><span class="block font-code-legislative text-code-legislative text-on-surface-variant uppercase tracking-wider">HARNESS // ARCH-01</span></div></div></div><div class="px-6"><div class="p-3 bg-surface-container-lowest rounded shadow-[0_1px_4px_rgba(0,0,0,0.02)] flex flex-col gap-1"><span class="font-label-caps text-label-caps text-on-surface-variant uppercase">Operational Environment</span><div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-secondary"></span><span class="font-code-legislative text-code-legislative font-bold text-on-surface">2 U.S.C. § 1601 LDA ESCROW</span></div></div></div><nav class="px-4 flex flex-col gap-1" data-active-classes="bg-primary-container text-on-primary font-bold rounded-lg"><a aria-current="page" class="flex items-center gap-3 px-3 py-2.5 transition-colors bg-primary-container text-on-primary font-bold rounded-lg" data-path="live-simulation-terminal" href="#"><span class="material-symbols-outlined text-[18px]">terminal</span><span>Simulation Console</span></a><a class="flex items-center gap-3 px-3 py-2.5 rounded text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors font-body-sm text-body-sm" data-path="canonical-stage-stepper" href="#"><span class="material-symbols-outlined text-[18px]">conversion_path</span><span>16-Stage Stepper</span></a><a class="flex items-center gap-3 px-3 py-2.5 rounded text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors font-body-sm text-body-sm" data-path="persona-flight-matrix" href="#"><span class="material-symbols-outlined text-[18px]">switch_account</span><span>Persona Flight Deck</span></a><a class="flex items-center gap-3 px-3 py-2.5 rounded text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors font-body-sm text-body-sm" data-path="fiduciary-escrow-ledger" href="#"><span class="material-symbols-outlined text-[18px]">account_balance</span><span>Escrow & Compliance</span></a><a class="flex items-center gap-3 px-3 py-2.5 rounded text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors font-body-sm text-body-sm" data-path="live-audit-telemetry" href="#"><span class="material-symbols-outlined text-[18px]">monitoring</span><span>Audit Telemetry</span></a></nav></div><div class="px-6 flex flex-col gap-3"><div class="bg-surface-container-high p-3 rounded"><div class="flex items-center justify-between mb-1"><span class="font-label-caps text-label-caps uppercase text-on-surface-variant">Terminal Sync</span><span class="font-code-legislative text-code-legislative text-secondary font-bold">99.98%</span></div><div class="w-full bg-surface-container h-1 rounded overflow-hidden"><div class="bg-secondary h-full w-[99%]"></div></div></div><div class="flex items-center justify-between pt-2"><span class="font-code-legislative text-code-legislative text-on-surface-variant">v4.18.2-BOARDROOM</span><span class="material-symbols-outlined text-[16px] text-on-surface-variant">verified_user</span></div></div></aside><div class="pl-72"><header class="fixed top-0 left-72 right-0 h-16 bg-surface/80 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)] z-40 flex items-center justify-between px-8"><div class="flex items-center gap-6"><div class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full bg-on-tertiary-container animate-pulse"></span><span class="font-label-caps text-label-caps uppercase tracking-wider text-on-surface">Session Active: Live Boardroom Terminal</span></div><span class="text-outline-variant font-code-legislative">|</span><div class="flex items-center gap-2"><span class="font-code-legislative text-code-legislative text-on-surface-variant">HARNESS ID:</span><span class="font-code-legislative text-code-legislative bg-surface-container px-2 py-0.5 rounded text-on-surface font-semibold">SIM-LDA-2025-08</span></div></div><div class="flex items-center gap-4"><div class="flex items-center bg-surface-container-lowest px-3 py-1.5 rounded gap-2 shadow-[0_1px_4px_rgba(0,0,0,0.02)]"><span class="material-symbols-outlined text-secondary text-[18px]">shield</span><span class="font-code-legislative text-code-legislative text-on-surface font-medium">LDA REG: #48291-VA</span></div><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></header><main class="relative pt-16 w-full min-h-screen bg-surface"><div class="flex flex-col w-full">
+<!-- Top Command Bar / Workstation Header -->
+<div class="w-full bg-surface-container-lowest shadow-sm px-6 py-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+<div class="flex flex-col">
+<div class="flex items-center gap-3">
+<span class="inline-flex items-center px-2 py-0.5 rounded bg-primary text-on-primary font-code-legislative text-code-legislative uppercase tracking-wider font-semibold">
+          CR-FIN-4.2 EXEC
+        </span>
+<span class="font-headline-md text-headline-md text-on-surface font-semibold tracking-tight">
+          CivicRaise Master Simulation Harness
+        </span>
+<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-surface-container-high text-secondary font-code-legislative text-code-legislative font-medium">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary animate-pulse"></span>
+          SYNCHRONIZED FBO LEDGER
+        </span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-1">
+        2 U.S.C. § 1601 Statutory Lobbying Escrow Workstation • Real-Time Client Node Matrix
+      </p>
+</div>
+<!-- Live Controls & Clocks -->
+<div class="flex items-center gap-4 flex-wrap">
+<div class="flex items-center bg-surface-container px-3.5 py-2 rounded shadow-sm gap-3">
+<div class="flex flex-col">
+<span class="font-label-caps text-label-caps uppercase text-on-surface-variant">UTC Telemetry</span>
+<span class="font-code-legislative text-code-legislative font-bold text-on-surface" id="utcClock">18:42:09.112 Z</span>
+</div>
+<div class="w-px h-6 bg-outline-variant"></div>
+<div class="flex flex-col">
+<span class="font-label-caps text-label-caps uppercase text-on-surface-variant">Active Model</span>
+<span class="font-code-legislative text-code-legislative font-semibold text-secondary">CANONICAL-16S</span>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<button class="flex items-center gap-1.5 px-3 py-2 rounded bg-surface-container hover:bg-surface-container-high text-on-surface font-body-sm text-body-sm font-medium transition-all shadow-sm" id="scenarioReplayBtn">
+<span class="material-symbols-outlined text-[18px]">replay</span>
+<span>Replay Scenario</span>
+</button>
+<button class="flex items-center gap-1.5 px-3 py-2 rounded bg-primary text-on-primary hover:bg-primary-container font-body-sm text-body-sm font-semibold transition-all shadow-sm" id="resetTelemetryBtn">
+<span class="material-symbols-outlined text-[18px]">restart_alt</span>
+<span>Zero Ledger Delta</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Primary 3-Column Workstation Layout -->
+<div class="w-full px-6 py-6 grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+<!-- LEFT COLUMN: Persona Flight Deck & 16-Stage Scenario Stepper (Cols 1-3) -->
+<div class="lg:col-span-3 flex flex-col gap-5">
+<!-- Persona Tabs Card -->
+<div class="bg-surface-container-lowest rounded shadow-sm p-4 flex flex-col gap-3">
+<div class="flex items-center justify-between">
+<span class="font-label-caps text-label-caps uppercase tracking-wider text-on-surface-variant font-bold">
+            Persona Flight Deck
+          </span>
+<span class="font-code-legislative text-code-legislative text-secondary font-semibold">ROLE ROUTING</span>
+</div>
+<div class="grid grid-cols-1 gap-2" id="personaDeckContainer">
+<!-- Persona A -->
+<button class="persona-tab active-persona text-left p-3 rounded bg-surface-container-high text-on-surface shadow-sm transition-all flex items-start gap-3" data-persona="A">
+<div class="w-8 h-8 rounded bg-primary text-on-primary flex items-center justify-center font-headline-sm text-headline-sm flex-shrink-0">
+              EV
+            </div>
+<div class="min-w-0">
+<div class="flex items-center gap-1.5">
+<span class="font-title-md text-title-md font-bold truncate">Elena Vance</span>
+<span class="w-1.5 h-1.5 rounded-full bg-on-tertiary-container"></span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant truncate">Citizen Backer • IA-03 Dallas Cnty</p>
+<span class="inline-block mt-1 font-code-legislative text-code-legislative bg-surface-container px-1.5 py-0.5 rounded text-secondary font-medium">L2 Voter Verified</span>
+</div>
+</button>
+<!-- Persona B -->
+<button class="persona-tab text-left p-3 rounded hover:bg-surface-container-low text-on-surface transition-all flex items-start gap-3" data-persona="B">
+<div class="w-8 h-8 rounded bg-secondary text-on-secondary flex items-center justify-center font-headline-sm text-headline-sm flex-shrink-0">
+              MV
+            </div>
+<div class="min-w-0">
+<div class="flex items-center gap-1.5">
+<span class="font-title-md text-title-md font-bold truncate">Markus Vance, Esq.</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant truncate">Lead Advocate • Capitol Hill Advocates</p>
+<span class="inline-block mt-1 font-code-legislative text-code-legislative bg-surface-container px-1.5 py-0.5 rounded text-on-surface-variant font-medium">LDA Reg #48921-VA</span>
+</div>
+</button>
+<!-- Persona C -->
+<button class="persona-tab text-left p-3 rounded hover:bg-surface-container-low text-on-surface transition-all flex items-start gap-3" data-persona="C">
+<div class="w-8 h-8 rounded bg-primary-container text-on-primary flex items-center justify-center font-headline-sm text-headline-sm flex-shrink-0">
+              HC
+            </div>
+<div class="min-w-0">
+<div class="flex items-center gap-1.5">
+<span class="font-title-md text-title-md font-bold truncate">Congressional Staffer</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant truncate">Sr. Counsel • House Ag Committee</p>
+<span class="inline-block mt-1 font-code-legislative text-code-legislative bg-surface-container px-1.5 py-0.5 rounded text-on-surface-variant font-medium">100% IA-03 Domiciled</span>
+</div>
+</button>
+<!-- Persona D -->
+<button class="persona-tab text-left p-3 rounded hover:bg-surface-container-low text-on-surface transition-all flex items-start gap-3" data-persona="D">
+<div class="w-8 h-8 rounded bg-surface-dim text-on-surface flex items-center justify-center font-headline-sm text-headline-sm flex-shrink-0">
+              ET
+            </div>
+<div class="min-w-0">
+<div class="flex items-center gap-1.5">
+<span class="font-title-md text-title-md font-bold truncate">Fiduciary Trustee</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant truncate">Evolve Bank & Trust / FBO Custody</p>
+<span class="inline-block mt-1 font-code-legislative text-code-legislative bg-surface-container px-1.5 py-0.5 rounded text-on-surface-variant font-medium">Modern Treasury SLA</span>
+</div>
+</button>
+</div>
+</div>
+<!-- 16-Stage Stepper Navigation Card -->
+<div class="bg-surface-container-lowest rounded shadow-sm p-4 flex flex-col gap-3">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary text-[20px]">account_tree</span>
+<span class="font-label-caps text-label-caps uppercase tracking-wider text-on-surface-variant font-bold">
+              16-Stage Scenario Stepper
+            </span>
+</div>
+<span class="font-code-legislative text-code-legislative px-2 py-0.5 bg-surface-container rounded font-bold text-on-surface" id="stepCounterBadge">06 / 16</span>
+</div>
+<div class="flex flex-col gap-1 max-h-[560px] overflow-y-auto pr-1" id="stepperNavList">
+<!-- Item 01 -->
+<button class="step-btn text-left p-2 rounded hover:bg-surface-container-low transition-colors flex items-center justify-between group" data-step="1">
+<div class="flex items-center gap-2.5 min-w-0">
+<span class="font-code-legislative text-code-legislative w-6 text-on-surface-variant group-hover:text-secondary font-bold">01</span>
+<span class="font-body-sm text-body-sm truncate text-on-surface">Voter Onboarding & Civic Auth</span>
+</div>
+<span class="font-code-legislative text-[10px] uppercase px-1.5 py-0.5 rounded bg-surface-container text-on-surface-variant">L2 KYC</span>
+</button>
+<!-- Item 02 -->
+<button class="step-btn text-left p-2 rounded hover:bg-surface-container-low transition-colors flex items-center justify-between group" data-step="2">
+<div class="flex items-center gap-2.5 min-w-0">
+<span class="font-code-legislative text-code-legislative w-6 text-on-surface-variant group-hover:text-secondary font-bold">02</span>
+<span class="font-body-sm text-body-sm truncate text-on-surface">Pick Causes & District Setup</span>
+</div>
+<span class="font-code-legislative text-[10px] uppercase px-1.5 py-0.5 rounded bg-surface-container text-on-surface-variant">IA-03</span>
+</button>
+<!-- Item 03 -->
+<button class="step-btn text-left p-2 rounded hover:bg-surface-container-low transition-colors flex items-center justify-between group" data-step="3">
+<div class="flex items-center gap-2.5 min-w-0">
+<span class="font-code-legislative text-code-legislative w-6 text-on-surface-variant group-hover:text-secondary font-bold">03</span>
+<span class="font-body-sm text-body-sm truncate text-on-surface">Citizen Backer Dashboard</span>
+</div>
+<span class="font-code-legislative text-[10px] uppercase px-1.5 py-0.5 rounded bg-surface-container text-on-surface-variant">Overview</span>
+</button>
+<!-- Item 04 -->
+<button class="step-btn text-left p-2 rounded hover:bg-surface-container-low transition-colors flex items-center justify-between group" data-step="4">
+<div class="flex items-center gap-2.5 min-w-0">
+<span class="font-code-legislative text-code-legislative w-6 text-on-surface-variant group-hover:text-secondary font-bold">04</span>
+<span class="font-body-sm text-body-sm truncate text-on-surface">Swipe to Discover Feed</span>
+</div>
+<span class="font-code-legislative text-[10px] uppercase px-1.5 py-0.5 rounded bg-surface-container text-on-surface-variant">Bipartisan</span>
+</button>
+<!-- Item 05 -->
+<button class="step-btn text-left p-2 rounded hover:bg-surface-container-low transition-colors flex items-center justify-between group" data-step="5">
+<div class="flex items-center gap-2.5 min-w-0">
+<span class="font-code-legislative text-code-legislative w-6 text-on-surface-variant group-hover:text-secondary font-bold">05</span>
+<span class="font-body-sm text-body-sm truncate text-on-surface">Campaign Detail: H.R. 5602</span>
+</div>
+<span class="font-code-legislative text-[10px] uppercase px-1.5 py-0.5 rounded bg-surface-container text-on-surface-variant">$20k Cap</span>
+</button>
+<!-- Item 06 (ACTIVE DEFAULT) -->
+<button class="step-btn text-left p-2 rounded bg-surface-container-high font-semibold text-on-surface shadow-xs transition-colors flex items-center justify-between group" data-step="6">
+<div class="flex items-center gap-2.5 min-w-0">
+<span class="font-code-legislative text-code-legislative w-6 text-secondary font-bold">06</span>
+<span class="font-body-sm text-body-sm truncate text-on-surface">Escrow Pledge & Checkout</span>
+</div>
+<span class="font-code-legislative text-[10px] uppercase px-1.5 py-0.5 rounded bg-secondary text-on-secondary font-bold">Active</span>
+</button>
+<!-- Item 07 -->
+<button class="step-btn text-left p-2 rounded hover:bg-surface-container-low transition-colors flex items-center justify-between group" data-step="7">
+<div class="flex items-center gap-2.5 min-w-0">
+<span class="font-code-legislative text-code-legislative w-6 text-on-surface-variant group-hover:text-secondary font-bold">07</span>
+<span class="font-body-sm text-body-sm truncate text-on-surface">Sworn Testimony (28 U.S.C.)</span>
+</div>
+<span class="font-code-legislative text-[10px] uppercase px-1.5 py-0.5 rounded bg-surface-container text-on-surface-variant">Affidavit</span>
+</button>
+<!-- Item 08 -->
+<button class="step-btn text-left p-2 rounded hover:bg-surface-container-low transition-colors flex items-center justify-between group" data-step="8">
+<div class="flex items-center gap-2.5 min-w-0">
+<span class="font-code-legislative text-code-legislative w-6 text-on-surface-variant group-hover:text-secondary font-bold">08</span>
+<span class="font-body-sm text-body-sm truncate text-on-surface">Legislative Redline Proof</span>
+</div>
+<span class="font-code-legislative text-[10px] uppercase px-1.5 py-0.5 rounded bg-surface-container text-on-surface-variant">Sec 7(a)</span>
+</button>
+<!-- Item 09 -->
+<button class="step-btn text-left p-2 rounded hover:bg-surface-container-low transition-colors flex items-center justify-between group" data-step="9">
+<div class="flex items-center gap-2.5 min-w-0">
+<span class="font-code-legislative text-code-legislative w-6 text-on-surface-variant group-hover:text-secondary font-bold">09</span>
+<span class="font-body-sm text-body-sm truncate text-on-surface">Backer Ratification Ballot</span>
+</div>
+<span class="font-code-legislative text-[10px] uppercase px-1.5 py-0.5 rounded bg-surface-container text-on-surface-variant">60% Quorum</span>
+</button>
+<!-- Item 10 -->
+<button class="step-btn text-left p-2 rounded hover:bg-surface-container-low transition-colors flex items-center justify-between group" data-step="10">
+<div class="flex items-center gap-2.5 min-w-0">
+<span class="font-code-legislative text-code-legislative w-6 text-on-surface-variant group-hover:text-secondary font-bold">10</span>
+<span class="font-body-sm text-body-sm truncate text-on-surface">Civic Badges & Perks Gallery</span>
+</div>
+<span class="font-code-legislative text-[10px] uppercase px-1.5 py-0.5 rounded bg-surface-container text-on-surface-variant">0-Multiplier</span>
+</button>
+<!-- Item 11 -->
+<button class="step-btn text-left p-2 rounded hover:bg-surface-container-low transition-colors flex items-center justify-between group" data-step="11">
+<div class="flex items-center gap-2.5 min-w-0">
+<span class="font-code-legislative text-code-legislative w-6 text-on-surface-variant group-hover:text-secondary font-bold">11</span>
+<span class="font-body-sm text-body-sm truncate text-on-surface">Citizen Profile & Escrow SLA</span>
+</div>
+<span class="font-code-legislative text-[10px] uppercase px-1.5 py-0.5 rounded bg-surface-container text-on-surface-variant">48hr SLA</span>
+</button>
+<!-- Item 12 -->
+<button class="step-btn text-left p-2 rounded hover:bg-surface-container-low transition-colors flex items-center justify-between group" data-step="12">
+<div class="flex items-center gap-2.5 min-w-0">
+<span class="font-code-legislative text-code-legislative w-6 text-on-surface-variant group-hover:text-secondary font-bold">12</span>
+<span class="font-body-sm text-body-sm truncate text-on-surface">Lobbyist Network & RFPs</span>
+</div>
+<span class="font-code-legislative text-[10px] uppercase px-1.5 py-0.5 rounded bg-surface-container text-on-surface-variant">LDA Pool</span>
+</button>
+<!-- Item 13 -->
+<button class="step-btn text-left p-2 rounded hover:bg-surface-container-low transition-colors flex items-center justify-between group" data-step="13">
+<div class="flex items-center gap-2.5 min-w-0">
+<span class="font-code-legislative text-code-legislative w-6 text-on-surface-variant group-hover:text-secondary font-bold">13</span>
+<span class="font-body-sm text-body-sm truncate text-on-surface">Lobbyist Bid Submission</span>
+</div>
+<span class="font-code-legislative text-[10px] uppercase px-1.5 py-0.5 rounded bg-surface-container text-on-surface-variant">Bid Matrix</span>
+</button>
+<!-- Item 14 -->
+<button class="step-btn text-left p-2 rounded hover:bg-surface-container-low transition-colors flex items-center justify-between group" data-step="14">
+<div class="flex items-center gap-2.5 min-w-0">
+<span class="font-code-legislative text-code-legislative w-6 text-on-surface-variant group-hover:text-secondary font-bold">14</span>
+<span class="font-body-sm text-body-sm truncate text-on-surface">Lobbyist Evidence Logger</span>
+</div>
+<span class="font-code-legislative text-[10px] uppercase px-1.5 py-0.5 rounded bg-surface-container text-on-surface-variant">Merkle Root</span>
+</button>
+<!-- Item 15 -->
+<button class="step-btn text-left p-2 rounded hover:bg-surface-container-low transition-colors flex items-center justify-between group" data-step="15">
+<div class="flex items-center gap-2.5 min-w-0">
+<span class="font-code-legislative text-code-legislative w-6 text-on-surface-variant group-hover:text-secondary font-bold">15</span>
+<span class="font-body-sm text-body-sm truncate text-on-surface">Statutory Ethics & LD-2 Staging</span>
+</div>
+<span class="font-code-legislative text-[10px] uppercase px-1.5 py-0.5 rounded bg-surface-container text-on-surface-variant">Line 13 XML</span>
+</button>
+<!-- Item 16 -->
+<button class="step-btn text-left p-2 rounded hover:bg-surface-container-low transition-colors flex items-center justify-between group" data-step="16">
+<div class="flex items-center gap-2.5 min-w-0">
+<span class="font-code-legislative text-code-legislative w-6 text-on-surface-variant group-hover:text-secondary font-bold">16</span>
+<span class="font-body-sm text-body-sm truncate text-on-surface">Staffer Legislative Portal</span>
+</div>
+<span class="font-code-legislative text-[10px] uppercase px-1.5 py-0.5 rounded bg-surface-container text-on-surface-variant">IA-03 Ledger</span>
+</button>
+</div>
+</div>
+</div>
+<!-- CENTER COLUMN: Interactive Live iPhone Chassis Simulator Frame (Cols 4-8) -->
+<div class="lg:col-span-5 flex flex-col items-center justify-center">
+<!-- Frame Top Navigation Utility -->
+<div class="w-full max-w-[420px] mb-3 flex items-center justify-between px-2">
+<div class="flex items-center gap-2">
+<span class="w-2.5 h-2.5 rounded-full bg-secondary"></span>
+<span class="font-label-caps text-label-caps uppercase text-on-surface-variant font-bold tracking-wider" id="currentScreenLabel">
+            Stage 06: Escrow Pledge & Checkout
+          </span>
+</div>
+<div class="flex items-center gap-1">
+<button class="p-1 rounded bg-surface-container hover:bg-surface-container-high text-on-surface transition-colors" id="prevStepBtn">
+<span class="material-symbols-outlined text-[16px]">chevron_left</span>
+</button>
+<span class="font-code-legislative text-code-legislative px-1.5 text-on-surface-variant" id="stepPillDisplay">6/16</span>
+<button class="p-1 rounded bg-surface-container hover:bg-surface-container-high text-on-surface transition-colors" id="nextStepBtn">
+<span class="material-symbols-outlined text-[16px]">chevron_right</span>
+</button>
+</div>
+</div>
+<!-- iPhone Frame Enclosure -->
+<div class="relative w-[390px] h-[810px] bg-primary rounded-[50px] p-[12px] shadow-2xl flex flex-col overflow-hidden">
+<!-- Screen Glass Bezel Inset -->
+<div class="relative w-full h-full bg-surface rounded-[40px] overflow-hidden flex flex-col select-none">
+<!-- iOS Status Bar & Dynamic Island -->
+<div class="w-full h-11 bg-surface px-6 pt-2.5 flex items-center justify-between z-30">
+<span class="font-code-legislative text-[13px] font-semibold text-on-surface" id="simTime">9:41</span>
+<!-- Dynamic Island Capsule -->
+<div class="w-28 h-6 bg-primary rounded-full flex items-center justify-between px-3">
+<span class="w-2 h-2 rounded-full bg-on-tertiary-container"></span>
+<span class="font-code-legislative text-[9px] text-on-primary font-medium tracking-tight">CIVIC SEC</span>
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>
+</div>
+<div class="flex items-center gap-1.5 text-on-surface">
+<span class="material-symbols-outlined text-[14px]">signal_cellular_alt</span>
+<span class="material-symbols-outlined text-[14px]">wifi</span>
+<span class="material-symbols-outlined text-[16px]">battery_full</span>
+</div>
+</div>
+<!-- Dynamic Simulated Screen Content Canvas (Swapped via JS) -->
+<div class="w-full flex-1 overflow-y-auto px-4 pb-8 flex flex-col bg-surface" id="simulatedScreen">
+<!-- DEFAULT: Stage 06 Escrow Pledge & Checkout Content -->
+<div class="flex flex-col gap-4 pt-2">
+<!-- Back header -->
+<div class="flex items-center justify-between">
+<button class="flex items-center gap-1 text-secondary font-body-sm text-body-sm font-semibold">
+<span class="material-symbols-outlined text-[18px]">arrow_back</span>
+<span>H.R. 5602 Detail</span>
+</button>
+<span class="font-code-legislative text-[11px] px-2 py-0.5 rounded bg-surface-container text-on-surface-variant font-medium">ESCROW GATE 02</span>
+</div>
+<!-- Main Title Card -->
+<div class="bg-surface-container-lowest p-4 rounded shadow-sm flex flex-col gap-2">
+<div class="flex items-center gap-2">
+<span class="px-2 py-0.5 rounded bg-surface-container font-code-legislative text-code-legislative font-bold text-secondary">H.R. 5602</span>
+<span class="font-label-caps text-label-caps uppercase text-on-tertiary-container font-bold">Active Campaign</span>
+</div>
+<h1 class="font-headline-sm text-headline-sm text-on-surface font-semibold leading-tight">
+                  Agricultural Right-to-Repair Act
+                </h1>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+                  Your pledge enters non-custodial FBO escrow at Evolve Bank & Trust. Funds disburse only if milestone proof Section 7(a) passes constituent ratification.
+                </p>
+</div>
+<!-- Interactive Pledge Tier Grid -->
+<div class="flex flex-col gap-2">
+<span class="font-label-caps text-label-caps uppercase text-on-surface-variant tracking-wider font-semibold">
+                  Select Pledged FBO Amount
+                </span>
+<div class="grid grid-cols-4 gap-2" id="pledgeSelectorGrid">
+<button class="pledge-chip py-2.5 rounded bg-surface-container-lowest text-on-surface font-code-legislative text-code-legislative font-semibold text-center hover:bg-surface-container transition-all" data-amt="0.99">
+                    $0.99
+                  </button>
+<button class="pledge-chip active-chip py-2.5 rounded bg-secondary text-on-secondary font-code-legislative text-code-legislative font-bold text-center shadow-sm" data-amt="5.00">
+                    $5.00
+                  </button>
+<button class="pledge-chip py-2.5 rounded bg-surface-container-lowest text-on-surface font-code-legislative text-code-legislative font-semibold text-center hover:bg-surface-container transition-all" data-amt="20.00">
+                    $20.00
+                  </button>
+<button class="pledge-chip py-2.5 rounded bg-surface-container-lowest text-on-surface font-code-legislative text-code-legislative font-semibold text-center hover:bg-surface-container transition-all" data-amt="100.00">
+                    $100
+                  </button>
+</div>
+<div class="flex items-center justify-between px-2 pt-1">
+<span class="font-body-sm text-body-sm text-on-surface-variant">Pledge with matched multiplier:</span>
+<span class="font-code-legislative text-code-legislative font-bold text-secondary" id="activePledgeSummary">$5.00 Escrow ($0 Fee)</span>
+</div>
+</div>
+<!-- Payment Method Selection Container -->
+<div class="bg-surface-container-lowest p-3 rounded shadow-sm flex flex-col gap-2">
+<span class="font-label-caps text-label-caps uppercase text-on-surface-variant tracking-wider font-semibold">Payment Instrument</span>
+<div class="flex items-center justify-between p-2 rounded bg-surface-container-low cursor-pointer">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[20px] text-on-surface">credit_card</span>
+<span class="font-body-sm text-body-sm font-semibold text-on-surface">Apple Pay / Visa •••• 4092</span>
+</div>
+<span class="material-symbols-outlined text-[18px] text-secondary">check_circle</span>
+</div>
+</div>
+<!-- Statutory Mandated Escrow Disclosure Box -->
+<div class="bg-surface-container p-3 rounded flex flex-col gap-1.5">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[16px] text-on-surface">gavel</span>
+<span class="font-label-caps text-label-caps uppercase text-on-surface font-bold">2 U.S.C. § 1601 Statutory Safe Harbor</span>
+</div>
+<p class="font-code-legislative text-[11px] text-on-surface-variant leading-relaxed">
+                  Pledges are held in Modern Treasury-administered accounts (Evolve Bank & Trust). No PAC contribution. Disbursed strictly upon verified statutory delivery. Refundable if Gate 2 fails 60% quorum.
+                </p>
+</div>
+<!-- Main Pledge Authorization Button -->
+<button class="w-full py-3.5 px-4 rounded bg-primary hover:bg-primary-container text-on-primary font-title-md text-title-md font-semibold transition-all shadow-md flex items-center justify-center gap-2" id="authorizePledgeBtn">
+<span class="material-symbols-outlined text-[20px]">lock</span>
+<span>Authorize Escrow Authorization</span>
+</button>
+<div class="hidden p-3 rounded bg-surface-container-high text-on-surface font-body-sm text-body-sm flex items-center gap-2" id="pledgeSuccessAlert">
+<span class="material-symbols-outlined text-secondary text-[20px]">verified</span>
+<span>Authorization recorded: Modern Treasury Entry #MT-88401. Tranche unlocked.</span>
+</div>
+</div>
+</div>
+<!-- Bottom Home Indicator Bar -->
+<div class="w-full h-5 bg-surface flex items-center justify-center">
+<div class="w-32 h-1 bg-on-surface-variant rounded-full opacity-40"></div>
+</div>
+</div>
+</div>
+<!-- Frame Lower Actions Bar -->
+<div class="mt-4 flex items-center gap-3">
+<button class="px-3 py-1.5 bg-surface-container rounded hover:bg-surface-container-high font-code-legislative text-code-legislative text-on-surface transition-all flex items-center gap-1.5" id="screenDirectStep9">
+<span class="material-symbols-outlined text-[16px]">how_to_vote</span>
+<span>Jump to Stage 09: Ratify Ballot</span>
+</button>
+<button class="px-3 py-1.5 bg-surface-container rounded hover:bg-surface-container-high font-code-legislative text-code-legislative text-on-surface transition-all flex items-center gap-1.5" id="screenDirectStep15">
+<span class="material-symbols-outlined text-[16px]">description</span>
+<span>Jump to Stage 15: LD-2 XML</span>
+</button>
+</div>
+</div>
+<!-- RIGHT COLUMN: Fiduciary Ledger & Live Audit Telemetry Console (Cols 9-12) -->
+<div class="lg:col-span-4 flex flex-col gap-5">
+<!-- Live Campaign State Card -->
+<div class="bg-surface-container-lowest rounded shadow-sm p-4 flex flex-col gap-3">
+<div class="flex items-center justify-between">
+<span class="font-label-caps text-label-caps uppercase tracking-wider text-on-surface-variant font-bold">
+            Live Campaign Escrow Balance
+          </span>
+<span class="font-code-legislative text-code-legislative text-on-tertiary-container font-bold">81.0% FUNDED</span>
+</div>
+<div class="flex items-baseline justify-between">
+<span class="font-headline-lg text-headline-lg font-bold text-on-surface" id="currentLedgerSum">$16,200.00</span>
+<span class="font-code-legislative text-code-legislative text-on-surface-variant">CAP: $20,000.00</span>
+</div>
+<!-- Progress Bar -->
+<div class="w-full bg-surface-container h-2 rounded overflow-hidden">
+<div class="bg-secondary h-full transition-all duration-500" id="campaignProgressBar" style="width: 81%;"></div>
+</div>
+<div class="flex items-center justify-between font-body-sm text-body-sm text-on-surface-variant pt-1">
+<span class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">schedule</span>
+<span>14 Days in 60-Day Window</span>
+</span>
+<span class="font-code-legislative text-code-legislative text-on-surface font-semibold">3,240 Citizen Backers</span>
+</div>
+</div>
+<!-- Escrow Tranche Waterfall Breakdown Card -->
+<div class="bg-surface-container-lowest rounded shadow-sm p-4 flex flex-col gap-3">
+<div class="flex items-center justify-between">
+<span class="font-label-caps text-label-caps uppercase tracking-wider text-on-surface-variant font-bold">
+            Escrow Tranche Waterfall (LDA § 1601)
+          </span>
+<span class="material-symbols-outlined text-secondary text-[18px]">account_balance_wallet</span>
+</div>
+<div class="flex flex-col gap-2">
+<!-- Gate 1 -->
+<div class="p-2.5 rounded bg-surface-container-low flex items-center justify-between">
+<div class="flex flex-col">
+<div class="flex items-center gap-1.5">
+<span class="w-2 h-2 rounded-full bg-on-tertiary-container"></span>
+<span class="font-title-md text-title-md font-semibold text-on-surface">Gate 1: RFP & Intake</span>
+</div>
+<span class="font-code-legislative text-code-legislative text-on-surface-variant">Lobbyist Strategy Approved</span>
+</div>
+<div class="text-right">
+<span class="font-code-legislative text-code-legislative font-bold text-on-surface">$5,000.00</span>
+<span class="block font-label-caps text-[10px] text-on-tertiary-container uppercase font-bold">Disbursed</span>
+</div>
+</div>
+<!-- Gate 2 -->
+<div class="p-2.5 rounded bg-surface-container-high flex items-center justify-between shadow-xs">
+<div class="flex flex-col">
+<div class="flex items-center gap-1.5">
+<span class="w-2 h-2 rounded-full bg-secondary animate-pulse"></span>
+<span class="font-title-md text-title-md font-bold text-on-surface">Gate 2: Committee Redline</span>
+</div>
+<span class="font-code-legislative text-code-legislative text-secondary font-medium">Sec. 7(a) Ratification Underway</span>
+</div>
+<div class="text-right">
+<span class="font-code-legislative text-code-legislative font-bold text-secondary">$10,000.00</span>
+<span class="block font-label-caps text-[10px] text-secondary uppercase font-bold">Active Review</span>
+</div>
+</div>
+<!-- Gate 3 -->
+<div class="p-2.5 rounded bg-surface-container-low flex items-center justify-between opacity-75">
+<div class="flex flex-col">
+<div class="flex items-center gap-1.5">
+<span class="w-2 h-2 rounded-full bg-outline"></span>
+<span class="font-title-md text-title-md font-semibold text-on-surface">Gate 3: Markup Hearing</span>
+</div>
+<span class="font-code-legislative text-code-legislative text-on-surface-variant">Final Statutory Filing Proof</span>
+</div>
+<div class="text-right">
+<span class="font-code-legislative text-code-legislative font-bold text-on-surface">$5,000.00</span>
+<span class="block font-label-caps text-[10px] text-outline uppercase font-bold">Queued</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Verification Taxonomy Matrix Card -->
+<div class="bg-surface-container-lowest rounded shadow-sm p-4 flex flex-col gap-3">
+<span class="font-label-caps text-label-caps uppercase tracking-wider text-on-surface-variant font-bold">
+          Verification Taxonomy Matrix
+        </span>
+<div class="grid grid-cols-2 gap-2">
+<div class="p-2 rounded bg-surface-container flex flex-col gap-0.5">
+<span class="font-code-legislative text-[11px] text-on-surface-variant font-semibold">IDENTITY (L2)</span>
+<div class="flex items-center gap-1 text-on-surface font-semibold text-body-sm">
+<span class="material-symbols-outlined text-[16px] text-secondary">verified_user</span>
+<span>100% Verified</span>
+</div>
+</div>
+<div class="p-2 rounded bg-surface-container flex flex-col gap-0.5">
+<span class="font-code-legislative text-[11px] text-on-surface-variant font-semibold">ELIGIBILITY</span>
+<div class="flex items-center gap-1 text-on-surface font-semibold text-body-sm">
+<span class="material-symbols-outlined text-[16px] text-secondary">public</span>
+<span>US Domicile Clear</span>
+</div>
+</div>
+<div class="p-2 rounded bg-surface-container flex flex-col gap-0.5">
+<span class="font-code-legislative text-[11px] text-on-surface-variant font-semibold">DELIVERABLE</span>
+<div class="flex items-center gap-1 text-on-surface font-semibold text-body-sm">
+<span class="material-symbols-outlined text-[16px] text-secondary">description</span>
+<span>Sec 7(a) Passed</span>
+</div>
+</div>
+<div class="p-2 rounded bg-surface-container flex flex-col gap-0.5">
+<span class="font-code-legislative text-[11px] text-on-surface-variant font-semibold">MERKLE PROOF</span>
+<div class="flex items-center gap-1 text-on-surface font-semibold text-body-sm">
+<span class="material-symbols-outlined text-[16px] text-secondary">fingerprint</span>
+<span>SHA-256 Valid</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Live Telemetry Event Stream Card -->
+<div class="bg-surface-container-lowest rounded shadow-sm p-4 flex flex-col gap-2.5">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px] text-secondary">sensors</span>
+<span class="font-label-caps text-label-caps uppercase tracking-wider text-on-surface-variant font-bold">
+              Audit Stream & Event Bus
+            </span>
+</div>
+<span class="font-code-legislative text-[11px] text-on-surface-variant">AUTO-INGEST</span>
+</div>
+<div class="bg-primary-container text-on-primary rounded p-3 font-code-legislative text-[11px] h-36 overflow-y-auto flex flex-col gap-1.5" id="telemetryConsole">
+<div class="text-on-primary-container">[00:00:01] CivicRaise node initialized. FBO root verified.</div>
+<div class="text-on-tertiary-container">[00:00:04] IA-03 Dallas County voter role registered: Vance, E.</div>
+<div class="text-secondary-fixed-dim">[00:00:12] H.R. 5602 campaign escrow locked at Modern Treasury.</div>
+<div class="text-on-primary">[00:00:19] Interactive harness ready. Listening for scenario shifts...</div>
+</div>
+</div>
+<!-- Investor Presenter Talk Track / Script Guide -->
+<div class="bg-surface-container-high rounded shadow-sm p-4 flex flex-col gap-2">
+<div class="flex items-center gap-2 text-secondary">
+<span class="material-symbols-outlined text-[18px]">psychology</span>
+<span class="font-label-caps text-label-caps uppercase font-bold tracking-wider">Executive Presentation Script</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface leading-relaxed" id="talkTrackText">
+          "Welcome to CivicRaise Stage 06. Notice how the pledge flows straight to an FDIC-insured FBO custodial account. No lobbyist receives a dime until constituents verify statutory language delivery with an on-record ratification ballot."
+        </p>
+</div>
+</div>
+</div>
+</div>
+<script>
+(function() {
+  // Live UTC Clock updater
+  function updateUtcClock() {
+    const el = document.getElementById('utcClock');
+    if (!el) return;
+    const now = new Date();
+    el.textContent = now.toISOString().substring(11, 23) + ' Z';
+  }
+  setInterval(updateUtcClock, 75);
+  updateUtcClock();
+
+  // Telemetry stream logger
+  const telemetryConsole = document.getElementById('telemetryConsole');
+  function logTelemetry(msg, colorClass = 'text-on-primary') {
+    if (!telemetryConsole) return;
+    const now = new Date();
+    const timeStr = now.toTimeString().substring(0, 8);
+    const item = document.createElement('div');
+    item.className = colorClass;
+    item.textContent = `[${timeStr}] ${msg}`;
+    telemetryConsole.appendChild(item);
+    telemetryConsole.scrollTop = telemetryConsole.scrollHeight;
+  }
+
+  // Talk track definitions for each step
+  const talkTracks = {
+    1: `"Stage 01 demonstrates our instant L2 constituent onboarding. We match the user against state voter files to guarantee nonpartisan IA-03 domicile."`,
+    2: `"Stage 02 lets backers configure policy priorities. Every citizen belongs to exactly one verified congressional district."`,
+    3: `"Stage 03 represents the Backer Executive Dashboard. Citizens track aggregate escrow, active markup timelines, and their direct constituent influence."`,
+    4: `"Stage 04 is the Swipe Discovery Engine. Backers review bipartisan bill co-sponsorship profiles with zero algorithmic rage-bait."`,
+    5: `"Stage 05 shows H.R. 5602. Crucially, campaigns are hard-capped at $20,000 to prevent special interest domination while fully funding targeted drafting."`,
+    6: `"Stage 06: Escrow Checkout. Pledges are held safely in trust under 2 U.S.C. § 1601 Safe Harbor. Funds are only unlocked upon milestone delivery."`,
+    7: `"Stage 07: Sworn Constituent Testimony under 28 U.S.C. § 1746. Backers attach verified affidavits detailing exact real-world impacts."`,
+    8: `"Stage 08: Committee Redline Proof. Markus Vance delivers Section 7(a) redline modifications direct to the House Agriculture Committee."`,
+    9: `"Stage 09: Constituent Ratification Ballot. This is CivicRaise's moat: lobbyists are paid ONLY if 60% of backers vote >=85% approval on the deliverable."`,
+    10: `"Stage 10: Non-monetary Civic Badges. Strict zero-financial-multiplier ensures one person, one vote integrity under federal lobbying law."`,
+    11: `"Stage 11: Citizen Ledger Settings & 48-Hour SLA. Instant automated returns if committee milestones are missed by lobbyists."`,
+    12: `"Stage 12: Lobbyist RFP Marketplace. Verified LDA firms submit standardized proposals against citizen-created campaign mandates."`,
+    13: `"Stage 13: Bid Portal. Markus Vance submits a capped $20k bid for H.R. 5602, detailing precise committee target deliverables."`,
+    14: `"Stage 14: Evidence Logger. Proof of work is anchored with a SHA-256 Merkle root timestamped directly before milestone deadline."`,
+    15: `"Stage 15: Form LD-2 Staging. Automated XML preparation for Congressional LDA compliance with exact zero-variance ledger matching."`,
+    16: `"Stage 16: Congressional Staffer Portal. House staffers verify 100% district constituent domicile on every petition and redline packet."`
+  };
+
+  // Screen renderer data generator
+  function renderScreenContent(step) {
+    const screen = document.getElementById('simulatedScreen');
+    if (!screen) return;
+
+    if (step === 1) {
+      screen.innerHTML = `
+        <div class="flex flex-col gap-4 pt-2">
+          <div class="flex items-center justify-between">
+            <span class="font-headline-sm text-headline-sm font-semibold">Civic Auth</span>
+            <span class="font-code-legislative text-[11px] px-2 py-0.5 rounded bg-surface-container text-secondary font-bold">L2 VOTER FILE</span>
+          </div>
+          <div class="bg-surface-container-lowest p-4 rounded shadow-sm flex flex-col gap-2">
+            <h3 class="font-title-md text-title-md font-bold">Identity & Residence Verification</h3>
+            <p class="font-body-sm text-body-sm text-on-surface-variant">Connect your state voter profile to ensure certified constituent representation in IA-03.</p>
+            <div class="mt-2 flex flex-col gap-2">
+              <input type="text" value="Elena Vance" class="w-full p-2.5 bg-surface-container rounded font-body-sm text-body-sm text-on-surface font-medium outline-none" readonly>
+              <input type="text" value="Dallas County, IA 50263" class="w-full p-2.5 bg-surface-container rounded font-body-sm text-body-sm text-on-surface font-medium outline-none" readonly>
+            </div>
+            <button class="mt-3 w-full py-2.5 rounded bg-secondary text-on-secondary font-body-sm text-body-sm font-semibold">Verify via Iowa SOS Database</button>
+          </div>
+          <div class="p-3 bg-surface-container rounded flex items-center gap-2">
+            <span class="material-symbols-outlined text-secondary text-[20px]">check_circle</span>
+            <span class="font-body-sm text-body-sm font-medium">Record matched: Active Voter #099412</span>
+          </div>
+        </div>
+      `;
+    } else if (step === 6) {
+      screen.innerHTML = `
+        <div class="flex flex-col gap-4 pt-2">
+          <div class="flex items-center justify-between">
+            <button class="flex items-center gap-1 text-secondary font-body-sm text-body-sm font-semibold">
+              <span class="material-symbols-outlined text-[18px]">arrow_back</span>
+              <span>H.R. 5602 Detail</span>
+            </button>
+            <span class="font-code-legislative text-[11px] px-2 py-0.5 rounded bg-surface-container text-on-surface-variant font-medium">ESCROW GATE 02</span>
+          </div>
+          <div class="bg-surface-container-lowest p-4 rounded shadow-sm flex flex-col gap-2">
+            <div class="flex items-center gap-2">
+              <span class="px-2 py-0.5 rounded bg-surface-container font-code-legislative text-code-legislative font-bold text-secondary">H.R. 5602</span>
+              <span class="font-label-caps text-label-caps uppercase text-on-tertiary-container font-bold">Active Campaign</span>
+            </div>
+            <h1 class="font-headline-sm text-headline-sm text-on-surface font-semibold leading-tight">
+              Agricultural Right-to-Repair Act
+            </h1>
+            <p class="font-body-sm text-body-sm text-on-surface-variant">
+              Your pledge enters non-custodial FBO escrow at Evolve Bank & Trust. Funds disburse only if milestone proof Section 7(a) passes constituent ratification.
+            </p>
+          </div>
+          <div class="flex flex-col gap-2">
+            <span class="font-label-caps text-label-caps uppercase text-on-surface-variant tracking-wider font-semibold">Select Pledged FBO Amount</span>
+            <div class="grid grid-cols-4 gap-2" id="pledgeSelectorGrid">
+              <button data-amt="0.99" class="pledge-chip py-2.5 rounded bg-surface-container-lowest text-on-surface font-code-legislative text-code-legislative font-semibold text-center hover:bg-surface-container transition-all">$0.99</button>
+              <button data-amt="5.00" class="pledge-chip active-chip py-2.5 rounded bg-secondary text-on-secondary font-code-legislative text-code-legislative font-bold text-center shadow-sm">$5.00</button>
+              <button data-amt="20.00" class="pledge-chip py-2.5 rounded bg-surface-container-lowest text-on-surface font-code-legislative text-code-legislative font-semibold text-center hover:bg-surface-container transition-all">$20.00</button>
+              <button data-amt="100.00" class="pledge-chip py-2.5 rounded bg-surface-container-lowest text-on-surface font-code-legislative text-code-legislative font-semibold text-center hover:bg-surface-container transition-all">$100</button>
+            </div>
+            <div class="flex items-center justify-between px-2 pt-1">
+              <span class="font-body-sm text-body-sm text-on-surface-variant">Pledge with matched multiplier:</span>
+              <span class="font-code-legislative text-code-legislative font-bold text-secondary" id="activePledgeSummary">$5.00 Escrow ($0 Fee)</span>
+            </div>
+          </div>
+          <div class="bg-surface-container-lowest p-3 rounded shadow-sm flex flex-col gap-2">
+            <span class="font-label-caps text-label-caps uppercase text-on-surface-variant tracking-wider font-semibold">Payment Instrument</span>
+            <div class="flex items-center justify-between p-2 rounded bg-surface-container-low cursor-pointer">
+              <div class="flex items-center gap-2">
+                <span class="material-symbols-outlined text-[20px] text-on-surface">credit_card</span>
+                <span class="font-body-sm text-body-sm font-semibold text-on-surface">Apple Pay / Visa •••• 4092</span>
+              </div>
+              <span class="material-symbols-outlined text-[18px] text-secondary">check_circle</span>
+            </div>
+          </div>
+          <div class="bg-surface-container p-3 rounded flex flex-col gap-1.5">
+            <div class="flex items-center gap-1.5">
+              <span class="material-symbols-outlined text-[16px] text-on-surface">gavel</span>
+              <span class="font-label-caps text-label-caps uppercase text-on-surface font-bold">2 U.S.C. § 1601 Safe Harbor</span>
+            </div>
+            <p class="font-code-legislative text-[11px] text-on-surface-variant leading-relaxed">
+              Pledges are held in Modern Treasury-administered accounts (Evolve Bank & Trust). No PAC contribution.
+            </p>
+          </div>
+          <button id="authorizePledgeBtn" class="w-full py-3.5 px-4 rounded bg-primary hover:bg-primary-container text-on-primary font-title-md text-title-md font-semibold transition-all shadow-md flex items-center justify-center gap-2">
+            <span class="material-symbols-outlined text-[20px]">lock</span>
+            <span>Authorize Escrow Authorization</span>
+          </button>
+          <div id="pledgeSuccessAlert" class="hidden p-3 rounded bg-surface-container-high text-on-surface font-body-sm text-body-sm flex items-center gap-2">
+            <span class="material-symbols-outlined text-secondary text-[20px]">verified</span>
+            <span>Authorization recorded: Modern Treasury Entry #MT-88401. Tranche unlocked.</span>
+          </div>
+        </div>
+      `;
+      attachPledgeListeners();
+    } else if (step === 9) {
+      screen.innerHTML = `
+        <div class="flex flex-col gap-4 pt-2">
+          <div class="flex items-center justify-between">
+            <span class="font-headline-sm text-headline-sm font-semibold">Ratification Vote</span>
+            <span class="font-code-legislative text-[11px] px-2 py-0.5 rounded bg-surface-container-high text-secondary font-bold">GATE 2 DELIVERABLE</span>
+          </div>
+          <div class="bg-surface-container-lowest p-4 rounded shadow-sm flex flex-col gap-2">
+            <div class="flex items-center gap-2">
+              <span class="font-code-legislative text-code-legislative text-on-surface-variant font-bold">MILESTONE 02:</span>
+              <span class="font-title-md text-title-md font-bold text-on-surface">Sec 7(a) Redline Hearing</span>
+            </div>
+            <p class="font-body-sm text-body-sm text-on-surface-variant">
+              Lead Advocate Markus Vance filed statutory amendment language before the House Ag Subcommittee. Review evidence before releasing $10,000 FBO tranche.
+            </p>
+          </div>
+          <!-- Quorum & Approval Gauge -->
+          <div class="bg-surface-container p-3 rounded flex flex-col gap-2">
+            <div class="flex items-center justify-between">
+              <span class="font-label-caps text-label-caps uppercase text-on-surface-variant font-bold">Quorum Progress (Req: 60%)</span>
+              <span class="font-code-legislative text-code-legislative font-bold text-secondary" id="simQuorumVal">74.2%</span>
+            </div>
+            <div class="w-full bg-surface-container-high h-2 rounded overflow-hidden">
+              <div class="bg-secondary h-full" style="width: 74.2%;"></div>
+            </div>
+            <div class="flex items-center justify-between pt-1">
+              <span class="font-label-caps text-label-caps uppercase text-on-surface-variant font-bold">Approval Rate (Req: 85%)</span>
+              <span class="font-code-legislative text-code-legislative font-bold text-on-tertiary-container" id="simApprovalVal">91.0%</span>
+            </div>
+            <div class="w-full bg-surface-container-high h-2 rounded overflow-hidden">
+              <div class="bg-on-tertiary-container h-full" style="width: 91%;"></div>
+            </div>
+          </div>
+          <!-- Action Buttons -->
+          <div class="grid grid-cols-2 gap-3 pt-2">
+            <button id="voteVetoBtn" class="py-3 px-2 rounded bg-surface-container-lowest hover:bg-surface-container text-error font-body-sm text-body-sm font-semibold border-none flex items-center justify-center gap-1.5 shadow-sm">
+              <span class="material-symbols-outlined text-[18px]">thumb_down</span>
+              <span>Veto Deliverable</span>
+            </button>
+            <button id="voteRatifyBtn" class="py-3 px-2 rounded bg-primary hover:bg-primary-container text-on-primary font-body-sm text-body-sm font-semibold flex items-center justify-center gap-1.5 shadow-md">
+              <span class="material-symbols-outlined text-[18px]">verified</span>
+              <span>Ratify & Disburse</span>
+            </button>
+          </div>
+          <div id="voteStatusToast" class="hidden p-3 rounded bg-surface-container-high text-on-surface font-body-sm text-body-sm flex items-center gap-2">
+            <span class="material-symbols-outlined text-secondary text-[20px]">how_to_reg</span>
+            <span>Elena Vance: Ballot ratified. SHA-256 vote leaf broadcast.</span>
+          </div>
+        </div>
+      `;
+      attachRatifyListeners();
+    } else if (step === 15) {
+      screen.innerHTML = `
+        <div class="flex flex-col gap-4 pt-2">
+          <div class="flex items-center justify-between">
+            <span class="font-headline-sm text-headline-sm font-semibold">Form LD-2 Staging</span>
+            <span class="font-code-legislative text-[11px] px-2 py-0.5 rounded bg-surface-container text-on-surface-variant font-bold">2 U.S.C. § 1604</span>
+          </div>
+          <div class="bg-surface-container-lowest p-3 rounded shadow-sm flex flex-col gap-2">
+            <span class="font-label-caps text-label-caps uppercase text-on-surface-variant font-bold">Line 13 Escrow Ledger Matching</span>
+            <div class="flex items-center justify-between font-code-legislative text-code-legislative">
+              <span class="text-on-surface">Modern Treasury Inflow:</span>
+              <span class="font-bold text-on-surface">$16,200.00</span>
+            </div>
+            <div class="flex items-center justify-between font-code-legislative text-code-legislative">
+              <span class="text-on-surface">LD-2 Staged Amount:</span>
+              <span class="font-bold text-secondary">$16,200.00</span>
+            </div>
+            <div class="flex items-center justify-between font-code-legislative text-code-legislative pt-1">
+              <span class="text-on-surface">Statutory Variance:</span>
+              <span class="font-bold text-on-tertiary-container">$0.00 (Zero Drift)</span>
+            </div>
+          </div>
+          <div class="bg-surface-container p-3 rounded flex flex-col gap-1">
+            <span class="font-label-caps text-label-caps uppercase text-on-surface-variant font-bold">Prepared XML Manifest</span>
+            <pre class="font-code-legislative text-[10px] text-on-surface bg-surface-container-lowest p-2 rounded overflow-x-auto"><LD2Report id="CR-2025-08">
+  <Registrant id="48921">Capitol Hill Adv.</Registrant>
+  <Client>IA-03 Coalition (CivicRaise FBO)</Client>
+  <Expense line="13">16200.00</Expense>
+</LD2Report></pre>
+          </div>
+          <button id="submitLd2Btn" class="w-full py-3 rounded bg-secondary hover:bg-secondary-container text-on-secondary font-title-md text-title-md font-semibold shadow-md flex items-center justify-center gap-2">
+            <span class="material-symbols-outlined text-[18px]">send</span>
+            <span>Approve & Export House XML</span>
+          </button>
+          <div id="ld2SubmitAlert" class="hidden p-2.5 rounded bg-surface-container-high text-on-surface font-body-sm text-body-sm flex items-center gap-2">
+            <span class="material-symbols-outlined text-secondary text-[18px]">check_circle</span>
+            <span>Filed to House Legislative Resource Center (Staging Node).</span>
+          </div>
+        </div>
+      `;
+      attachLd2Listeners();
+    } else {
+      screen.innerHTML = `
+        <div class="flex flex-col gap-4 pt-2">
+          <div class="flex items-center justify-between">
+            <span class="font-headline-sm text-headline-sm font-semibold">Stage ${step < 10 ? '0' + step : step} Console</span>
+            <span class="font-code-legislative text-[11px] px-2 py-0.5 rounded bg-surface-container text-secondary font-bold">CR-ACTIVE</span>
+          </div>
+          <div class="bg-surface-container-lowest p-4 rounded shadow-sm flex flex-col gap-2">
+            <h3 class="font-title-md text-title-md font-bold text-on-surface">Interactive Step Inspection</h3>
+            <p class="font-body-sm text-body-sm text-on-surface-variant">
+              This terminal view displays canonical live parameters for Scenario Stage ${step}. All interactions are synchronized to the Right Column Fiduciary Ledger.
+            </p>
+          </div>
+          <div class="p-3 bg-surface-container rounded flex flex-col gap-2">
+            <div class="flex items-center justify-between font-code-legislative text-code-legislative">
+              <span class="text-on-surface-variant">Step Token:</span>
+              <span class="font-bold text-on-surface">STAGE_${step}_INSPECT</span>
+            </div>
+            <div class="flex items-center justify-between font-code-legislative text-code-legislative">
+              <span class="text-on-surface-variant">District Scope:</span>
+              <span class="font-bold text-secondary">IA-03 DALLAS COUNTY</span>
+            </div>
+            <div class="flex items-center justify-between font-code-legislative text-code-legislative">
+              <span class="text-on-surface-variant">Ledger Proof:</span>
+              <span class="font-bold text-on-tertiary-container">VALIDATED SHA-256</span>
+            </div>
+          </div>
+          <button class="w-full py-3 rounded bg-primary text-on-primary font-body-sm text-body-sm font-semibold shadow-sm" onclick="document.querySelector('[data-step=\\'6\\']').click()">
+            Return to Core Escrow Step (06)
+          </button>
+        </div>
+      `;
+    }
+  }
+
+  // Interactive micro-listeners
+  function attachPledgeListeners() {
+    const chips = document.querySelectorAll('.pledge-chip');
+    const summary = document.getElementById('activePledgeSummary');
+    const authBtn = document.getElementById('authorizePledgeBtn');
+    const alertBox = document.getElementById('pledgeSuccessAlert');
+
+    chips.forEach(chip => {
+      chip.addEventListener('click', function() {
+        chips.forEach(c => {
+          c.classList.remove('active-chip', 'bg-secondary', 'text-on-secondary');
+          c.classList.add('bg-surface-container-lowest', 'text-on-surface');
+        });
+        this.classList.add('active-chip', 'bg-secondary', 'text-on-secondary');
+        this.classList.remove('bg-surface-container-lowest', 'text-on-surface');
+        const amt = this.getAttribute('data-amt');
+        if (summary) summary.textContent = `$${amt} Escrow ($0 Fee)`;
+        logTelemetry(`Elena Vance adjusted pledge tier to $${amt}.`, 'text-secondary-fixed-dim');
+      });
+    });
+
+    if (authBtn) {
+      authBtn.addEventListener('click', function() {
+        if (alertBox) alertBox.classList.remove('hidden');
+        authBtn.disabled = true;
+        authBtn.classList.add('opacity-60');
+        
+        // Update right ledger summary dynamically
+        const ledgerEl = document.getElementById('currentLedgerSum');
+        if (ledgerEl) ledgerEl.textContent = '$16,205.00';
+        logTelemetry('TRANCHE EVENT: $5.00 escrow authorized by Elena Vance. Modern Treasury tx: #MT-88401.', 'text-on-tertiary-container');
+      });
+    }
+  }
+
+  function attachRatifyListeners() {
+    const ratifyBtn = document.getElementById('voteRatifyBtn');
+    const vetoBtn = document.getElementById('voteVetoBtn');
+    const toast = document.getElementById('voteStatusToast');
+    const simQuorum = document.getElementById('simQuorumVal');
+    const simApproval = document.getElementById('simApprovalVal');
+
+    if (ratifyBtn) {
+      ratifyBtn.addEventListener('click', function() {
+        if (toast) toast.classList.remove('hidden');
+        if (simQuorum) simQuorum.textContent = '74.3%';
+        if (simApproval) simApproval.textContent = '91.2%';
+        ratifyBtn.disabled = true;
+        if (vetoBtn) vetoBtn.disabled = true;
+        logTelemetry('BALLOT RATIFIED: Elena Vance cast AYE on Gate 2 Deliverable (Sec 7(a)). Quorum reached: 74.3%.', 'text-on-tertiary-container');
+      });
+    }
+
+    if (vetoBtn) {
+      vetoBtn.addEventListener('click', function() {
+        if (toast) {
+          toast.classList.remove('hidden');
+          toast.innerHTML = `<span class="material-symbols-outlined text-error text-[20px]">cancel</span><span>Elena Vance: Deliverable rejected. Escrow remains held in FBO trust.</span>`;
+        }
+        ratifyBtn.disabled = true;
+        vetoBtn.disabled = true;
+        logTelemetry('BALLOT VETO: Elena Vance cast NAY on Gate 2 Deliverable. Escrow locked.', 'text-error');
+      });
+    }
+  }
+
+  function attachLd2Listeners() {
+    const btn = document.getElementById('submitLd2Btn');
+    const alert = document.getElementById('ld2SubmitAlert');
+    if (btn) {
+      btn.addEventListener('click', function() {
+        if (alert) alert.classList.remove('hidden');
+        btn.disabled = true;
+        logTelemetry('COMPLIANCE DISPATCH: Form LD-2 Line 13 staged to Clerk of the House ($16,200.00 zero-variance).', 'text-on-tertiary-container');
+      });
+    }
+  }
+
+  // Active step state management
+  let activeStep = 6;
+  const stepButtons = document.querySelectorAll('.step-btn');
+  const stepCounterBadge = document.getElementById('stepCounterBadge');
+  const currentScreenLabel = document.getElementById('currentScreenLabel');
+  const stepPillDisplay = document.getElementById('stepPillDisplay');
+  const talkTrackText = document.getElementById('talkTrackText');
+
+  function setActiveStep(stepNum) {
+    activeStep = parseInt(stepNum, 10);
+    
+    // Update stepper list styles
+    stepButtons.forEach(btn => {
+      const s = parseInt(btn.getAttribute('data-step'), 10);
+      if (s === activeStep) {
+        btn.className = 'step-btn text-left p-2 rounded bg-surface-container-high font-semibold text-on-surface shadow-xs transition-colors flex items-center justify-between group';
+        const badge = btn.querySelector('span:last-child');
+        if (badge) {
+          badge.className = 'font-code-legislative text-[10px] uppercase px-1.5 py-0.5 rounded bg-secondary text-on-secondary font-bold';
+          badge.textContent = 'Active';
+        }
+      } else {
+        btn.className = 'step-btn text-left p-2 rounded hover:bg-surface-container-low transition-colors flex items-center justify-between group';
+        const badge = btn.querySelector('span:last-child');
+        if (badge) {
+          badge.className = 'font-code-legislative text-[10px] uppercase px-1.5 py-0.5 rounded bg-surface-container text-on-surface-variant';
+        }
+      }
+    });
+
+    // Update labels
+    const stepPad = activeStep < 10 ? '0' + activeStep : activeStep;
+    if (stepCounterBadge) stepCounterBadge.textContent = `${stepPad} / 16`;
+    if (stepPillDisplay) stepPillDisplay.textContent = `${activeStep}/16`;
+
+    const stepNames = {
+      1: 'Stage 01: Citizen Login & Voter Onboarding',
+      2: 'Stage 02: Pick Causes & District Setup',
+      3: 'Stage 03: Citizen Backer Dashboard',
+      4: 'Stage 04: Swipe to Discover Feed',
+      5: 'Stage 05: Campaign Detail: H.R. 5602',
+      6: 'Stage 06: Escrow Pledge & Checkout',
+      7: 'Stage 07: Sworn Testimony Recorder',
+      8: 'Stage 08: Legislative Redline Proof',
+      9: 'Stage 09: Backer Ratification Ballot',
+      10: 'Stage 10: Civic Badges & Perks Gallery',
+      11: 'Stage 11: Citizen Profile & Ledger SLA',
+      12: 'Stage 12: Lobbyist Network & RFPs',
+      13: 'Stage 13: Lobbyist Bid Submission Portal',
+      14: 'Stage 14: Lobbyist Evidence Logger',
+      15: 'Stage 15: Statutory Ethics & LD-2 Staging',
+      16: 'Stage 16: Congressional Staffer Terminal'
+    };
+
+    if (currentScreenLabel) currentScreenLabel.textContent = stepNames[activeStep] || `Stage ${stepPad}`;
+    if (talkTrackText && talkTracks[activeStep]) talkTrackText.textContent = talkTracks[activeStep];
+
+    // Render screen
+    renderScreenContent(activeStep);
+    logTelemetry(`Simulation navigated to Stage ${stepPad}: ${stepNames[activeStep] || ''}.`);
+  }
+
+  // Bind Stepper Click Handlers
+  stepButtons.forEach(btn => {
+    btn.addEventListener('click', function() {
+      const step = this.getAttribute('data-step');
+      setActiveStep(step);
+    });
+  });
+
+  // Prev / Next controls
+  const prevBtn = document.getElementById('prevStepBtn');
+  const nextBtn = document.getElementById('nextStepBtn');
+  if (prevBtn) {
+    prevBtn.addEventListener('click', () => {
+      if (activeStep > 1) setActiveStep(activeStep - 1);
+    });
+  }
+  if (nextBtn) {
+    nextBtn.addEventListener('click', () => {
+      if (activeStep < 16) setActiveStep(activeStep + 1);
+    });
+  }
+
+  // Quick jump shortcuts
+  const jumpStep9 = document.getElementById('screenDirectStep9');
+  if (jumpStep9) jumpStep9.addEventListener('click', () => setActiveStep(9));
+  
+  const jumpStep15 = document.getElementById('screenDirectStep15');
+  if (jumpStep15) jumpStep15.addEventListener('click', () => setActiveStep(15));
+
+  // Persona Tabs Switching
+  const personaButtons = document.querySelectorAll('.persona-tab');
+  personaButtons.forEach(tab => {
+    tab.addEventListener('click', function() {
+      personaButtons.forEach(t => {
+        t.classList.remove('active-persona', 'bg-surface-container-high', 'shadow-sm');
+        t.classList.add('hover:bg-surface-container-low');
+      });
+      this.classList.add('active-persona', 'bg-surface-container-high', 'shadow-sm');
+      this.classList.remove('hover:bg-surface-container-low');
+
+      const role = this.getAttribute('data-persona');
+      const personaNames = {
+        'A': 'Elena Vance (Backer)',
+        'B': 'Markus Vance, Esq. (Lobbyist)',
+        'C': 'Congressional Staffer (House Ag)',
+        'D': 'Fiduciary Trustee (Evolve FBO)'
+      };
+      logTelemetry(`Active Persona switched to ${personaNames[role]}. Access controls re-evaluated.`, 'text-secondary');
+
+      // Auto-jump to relevant stage based on persona
+      if (role === 'A') setActiveStep(6);
+      if (role === 'B') setActiveStep(13);
+      if (role === 'C') setActiveStep(16);
+      if (role === 'D') setActiveStep(15);
+    });
+  });
+
+  // Reset & Replay Buttons
+  const resetBtn = document.getElementById('resetTelemetryBtn');
+  if (resetBtn) {
+    resetBtn.addEventListener('click', () => {
+      const ledgerEl = document.getElementById('currentLedgerSum');
+      if (ledgerEl) ledgerEl.textContent = '$16,200.00';
+      logTelemetry('LEDGER RECALIBRATED: Delta reverted to baseline state ($16,200.00). Modern Treasury FBO verified.', 'text-secondary');
+    });
+  }
+
+  const replayBtn = document.getElementById('scenarioReplayBtn');
+  if (replayBtn) {
+    replayBtn.addEventListener('click', () => {
+      logTelemetry('SCENARIO RUN: Executing automated 16-stage walkthrough audit...', 'text-secondary-fixed-dim');
+      setActiveStep(1);
+    });
+  }
+
+  // Initial bindings for default view
+  attachPledgeListeners();
+})();
+</script></main></div></body></html>
