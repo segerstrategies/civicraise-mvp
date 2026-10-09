@@ -1,12 +1,397 @@
+
 'use client';
-import {useEffect,useState} from 'react';import Link from 'next/link';import {createClient} from '@/lib/supabase-browser';
-export default function Admin(){const [user,setUser]=useState<any>(null);const [profile,setProfile]=useState<any>(null);const [campaign,setCampaign]=useState<any>(null);const [rfp,setRfp]=useState<any>(null);const [bids,setBids]=useState<any[]>([]);const [contracts,setContracts]=useState<any[]>([]);const [ballot,setBallot]=useState<any>(null);const [deliverables,setDeliverables]=useState<any[]>([]);const [advocates,setAdvocates]=useState<any[]>([]);const [msg,setMsg]=useState('');
-async function load(){const sb=createClient();if(!sb)return;const {data:{user}}=await sb.auth.getUser();setUser(user);if(!user)return;const {data:p}=await sb.from('profiles').select('*').eq('id',user.id).maybeSingle();setProfile(p);const {data:c}=await sb.from('campaigns').select('*').eq('slug','hr-5602').maybeSingle();setCampaign(c);if(c){const {data:r}=await sb.from('rfps').select('*').eq('campaign_id',c.id).maybeSingle();setRfp(r);if(r){const {data:b}=await sb.from('bids').select('*').eq('rfp_id',r.id).order('created_at');setBids(b||[]);const {data:cs}=await sb.from('contracts').select('*').eq('rfp_id',r.id);setContracts(cs||[])}}const {data:av}=await sb.from('advocate_profiles').select('*').order('created_at',{ascending:false});setAdvocates(av||[]);const {data:bl}=await sb.from('ratification_ballots').select('*').eq('campaign_id',c?.id||'').order('opened_at',{ascending:false}).limit(1).maybeSingle();setBallot(bl);if(c){const {data:d}=await sb.from('deliverables').select('*,campaign_milestones(name),contracts!inner(advocate_id,rfps!inner(campaign_id))').eq('contracts.rfps.campaign_id',c.id).order('submitted_at',{ascending:false});setDeliverables(d||[])}}
-useEffect(()=>{load()},[]);
-async function selectBid(id:string){const r=await fetch('/api/admin/select-bid',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({bidId:id})});const j=await r.json();setMsg(j.message);load()}
-async function advance(status:string){if(!campaign)return;const r=await fetch('/api/admin/advance',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({campaignId:campaign.id,status})});const j=await r.json();setMsg(j.message);load()}
-async function verifyAdvocate(id:string,status:string){const r=await fetch('/api/admin/advocate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({advocateId:id,status})});const j=await r.json();setMsg(j.message);load()}
-async function finalize(){if(!ballot)return;const r=await fetch('/api/ratification/finalize',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({ballotId:ballot.id})});const j=await r.json();setMsg(j.message);load()}
-if(!user)return <><div className="eyebrow">ADMIN · MVP</div><h1>Operations console</h1><p className="muted">Sign in with your test admin account.</p><Link href="/auth" className="btn primary">Sign in</Link></>;
-if(profile?.role!=='admin')return <><div className="eyebrow">ADMIN · MVP</div><h1>Operations console</h1><div className="notice">This account is not an admin. Use the SQL seed or database editor to assign role <code>admin</code> for testing.</div></>;
-return <><div className="eyebrow">ADMIN · MVP</div><h1>Operations console</h1>{msg&&<div className="notice">{msg}</div>}<div className="grid"><div className="card"><div className="eyebrow">CAMPAIGN</div><h2>{campaign?.title||'H.R. 5602'}</h2><p>Status: <strong>{campaign?.status}</strong></p><div className="actions"><button className="btn" onClick={()=>advance('FUNDED')}>Mark funded</button><button className="btn" onClick={()=>advance('RFP_OPEN')}>Open RFP</button><button className="btn" onClick={()=>advance('BID_REVIEW')}>Start bid review</button></div></div><div className="card"><div className="eyebrow">RFP</div><h2>{rfp?.title||'No RFP'}</h2><p>{bids.length} bid(s) submitted</p></div></div><div className="card" style={{marginTop:18}}><h2>Bid review</h2>{bids.length===0?<p className="muted">No bids yet.</p>:<table><thead><tr><th>Advocate</th><th>Amount</th><th>Status</th><th></th></tr></thead><tbody>{bids.map(b=><tr key={b.id}><td>{b.advocate_id}</td><td>${(b.amount_cents/100).toLocaleString()}</td><td>{b.status}</td><td>{b.status==='SUBMITTED'&&<button className="btn primary" onClick={()=>selectBid(b.id)}>Select</button>}</td></tr>)}</tbody></table>}</div><div className="card" style={{marginTop:18}}><h2>Advocate verification</h2>{advocates.length===0?<p className="muted">No advocate profiles yet.</p>:<table><thead><tr><th>Firm</th><th>Status</th><th></th></tr></thead><tbody>{advocates.map(a=><tr key={a.id}><td>{a.firm_name}</td><td>{a.verification_status}</td><td>{a.verification_status!=='verified'&&<button className="btn primary" onClick={()=>verifyAdvocate(a.id,'verified')}>Verify</button>}</td></tr>)}</tbody></table>}</div><div className="card" style={{marginTop:18}}><h2>Contracts</h2>{contracts.length===0?<p className="muted">No contract yet. Select a bid to create one.</p>:contracts.map(c=><p key={c.id}><strong>{c.id}</strong> · {c.status} · Advocate {c.advocate_id}</p>)}</div><div className="card" style={{marginTop:18}}><h2>Deliverables</h2>{deliverables.length===0?<p className="muted">No deliverables submitted yet. An open ratification ballot is created when the first deliverable is submitted.</p>:<table><thead><tr><th>Milestone</th><th>Status</th><th>Submitted</th></tr></thead><tbody>{deliverables.map(d=><tr key={d.id}><td>{d.campaign_milestones?.name||d.milestone_id}</td><td>{d.status}</td><td>{new Date(d.submitted_at).toLocaleString()}</td></tr>)}</tbody></table>}</div><div className="card" style={{marginTop:18}}><h2>Ratification</h2><p className="muted">Thresholds: 60% quorum, 85% affirmative approval.</p>{ballot?<><p>Ballot: {ballot.status}</p><button className="btn primary" onClick={finalize}>Finalize ballot</button></>:<p>No ballot found.</p>}</div><div className="card" style={{marginTop:18}}><h2>Disputes</h2><p className="muted">Review and resolve deliverable disputes before release.</p><Link href="/admin/disputes" className="btn">Open dispute queue</Link></div></>}
+
+import { useEffect, useState } from 'react';
+import Link from 'next/link';
+import { createClient } from '@/lib/supabase-browser';
+
+export default function Admin() {
+  const [user, setUser] = useState<any>(null);
+  const [profile, setProfile] = useState<any>(null);
+  const [campaigns, setCampaigns] = useState<any[]>([]);
+  const [campaign, setCampaign] = useState<any>(null);
+  const [selectedCampaignId, setSelectedCampaignId] = useState('');
+  const [rfp, setRfp] = useState<any>(null);
+  const [bids, setBids] = useState<any[]>([]);
+  const [contracts, setContracts] = useState<any[]>([]);
+  const [ballot, setBallot] = useState<any>(null);
+  const [deliverables, setDeliverables] = useState<any[]>([]);
+  const [advocates, setAdvocates] = useState<any[]>([]);
+  const [msg, setMsg] = useState('');
+
+  async function loadCampaign(campaignId: string) {
+    const sb = createClient();
+    if (!sb || !campaignId) return;
+
+    setSelectedCampaignId(campaignId);
+
+    const { data: c } = await sb
+      .from('campaigns')
+      .select('*')
+      .eq('id', campaignId)
+      .maybeSingle();
+
+    setCampaign(c);
+
+    if (!c) {
+      setRfp(null);
+      setBids([]);
+      setContracts([]);
+      setBallot(null);
+      setDeliverables([]);
+      return;
+    }
+
+    const { data: r } = await sb
+      .from('rfps')
+      .select('*')
+      .eq('campaign_id', c.id)
+      .maybeSingle();
+
+    setRfp(r);
+
+    if (r) {
+      const { data: b } = await sb
+        .from('bids')
+        .select('*')
+        .eq('rfp_id', r.id)
+        .order('created_at');
+
+      setBids(b || []);
+
+      const { data: cs } = await sb
+        .from('contracts')
+        .select('*')
+        .eq('rfp_id', r.id);
+
+      setContracts(cs || []);
+    } else {
+      setBids([]);
+      setContracts([]);
+    }
+
+    const { data: bl } = await sb
+      .from('ratification_ballots')
+      .select('*')
+      .eq('campaign_id', c.id)
+      .order('opened_at', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    setBallot(bl);
+
+    const { data: d } = await sb
+      .from('deliverables')
+      .select('*,campaign_milestones(name),contracts!inner(advocate_id,rfps!inner(campaign_id))')
+      .eq('contracts.rfps.campaign_id', c.id)
+      .order('submitted_at', { ascending: false });
+
+    setDeliverables(d || []);
+  }
+
+  async function load() {
+    const sb = createClient();
+    if (!sb) return;
+
+    const { data: auth } = await sb.auth.getUser();
+    const currentUser = auth.user;
+
+    setUser(currentUser);
+
+    if (!currentUser) return;
+
+    const { data: p } = await sb
+      .from('profiles')
+      .select('*')
+      .eq('id', currentUser.id)
+      .maybeSingle();
+
+    setProfile(p);
+
+    const { data: cs } = await sb
+      .from('campaigns')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    const availableCampaigns = cs || [];
+    setCampaigns(availableCampaigns);
+
+    const { data: av } = await sb
+      .from('advocate_profiles')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    setAdvocates(av || []);
+
+    if (availableCampaigns.length) {
+      const existingSelection = availableCampaigns.find(
+        (item) => item.id === selectedCampaignId
+      );
+
+      const preferredCampaign =
+        availableCampaigns.find((item) => item.slug === 'hr-5602-demo') ||
+        availableCampaigns[0];
+
+      await loadCampaign(
+        existingSelection?.id || preferredCampaign.id
+      );
+    } else {
+      setCampaign(null);
+      setRfp(null);
+      setBids([]);
+      setContracts([]);
+      setBallot(null);
+      setDeliverables([]);
+    }
+  }
+
+  useEffect(() => {
+    load();
+  }, []);
+
+  async function selectBid(id: string) {
+    const r = await fetch('/api/admin/select-bid', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ bidId: id }),
+    });
+
+    const j = await r.json();
+    setMsg(j.message || 'Bid selection request completed.');
+    await load();
+  }
+
+  async function advance(status: string) {
+    if (!campaign) return;
+
+    const r = await fetch('/api/admin/advance', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ campaignId: campaign.id, status }),
+    });
+
+    const j = await r.json();
+    setMsg(j.message || 'Campaign update request completed.');
+    await load();
+  }
+
+  async function verifyAdvocate(id: string, status: string) {
+    const r = await fetch('/api/admin/advocate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ advocateId: id, status }),
+    });
+
+    const j = await r.json();
+    setMsg(j.message || 'Advocate verification request completed.');
+    await load();
+  }
+
+  async function finalize() {
+    if (!ballot) return;
+
+    const r = await fetch('/api/ratification/finalize', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ballotId: ballot.id }),
+    });
+
+    const j = await r.json();
+    setMsg(j.message || 'Ballot finalization request completed.');
+    await load();
+  }
+
+  if (!user) {
+    return (
+      <>
+        <div className="eyebrow">ADMIN · MVP</div>
+        <h1>Operations console</h1>
+        <p className="muted">Sign in with your test admin account.</p>
+        <Link href="/auth" className="btn primary">Sign in</Link>
+      </>
+    );
+  }
+
+  if (profile?.role !== 'admin') {
+    return (
+      <>
+        <div className="eyebrow">ADMIN · MVP</div>
+        <h1>Operations console</h1>
+        <div className="notice">
+          This account is not an admin. Use the database editor to assign
+          the admin role for testing.
+        </div>
+      </>
+    );
+  }
+
+  return (
+    <>
+      <div className="eyebrow">ADMIN · MVP</div>
+      <h1>Operations console</h1>
+
+      {msg && <div className="notice">{msg}</div>}
+
+      <div className="card" style={{ marginBottom: 18 }}>
+        <label htmlFor="campaign-select">
+          <strong>Active campaign</strong>
+        </label>
+        <select
+          id="campaign-select"
+          className="input"
+          value={selectedCampaignId}
+          onChange={(e) => loadCampaign(e.target.value)}
+          style={{ display: 'block', width: '100%', marginTop: 8 }}
+        >
+          {campaigns.map((item) => (
+            <option key={item.id} value={item.id}>
+              {item.title} · {item.status}
+            </option>
+          ))}
+        </select>
+        <p className="muted">
+          Actions below apply to the selected campaign and its associated RFP.
+        </p>
+      </div>
+
+      <div className="grid">
+        <div className="card">
+          <div className="eyebrow">CAMPAIGN</div>
+          <h2>{campaign?.title || 'No campaign selected'}</h2>
+          <p>Status: <strong>{campaign?.status || 'N/A'}</strong></p>
+          <div className="actions">
+            <button className="btn" onClick={() => advance('FUNDED')} disabled={!campaign}>
+              Mark funded
+            </button>
+            <button className="btn" onClick={() => advance('RFP_OPEN')} disabled={!campaign}>
+              Open RFP
+            </button>
+            <button className="btn" onClick={() => advance('BID_REVIEW')} disabled={!campaign}>
+              Start bid review
+            </button>
+          </div>
+        </div>
+
+        <div className="card">
+          <div className="eyebrow">RFP</div>
+          <h2>{rfp?.title || 'No RFP for this campaign'}</h2>
+          <p>{bids.length} bid(s) submitted</p>
+        </div>
+      </div>
+
+      <div className="card" style={{ marginTop: 18 }}>
+        <h2>Bid review</h2>
+        {bids.length === 0 ? (
+          <p className="muted">No bids for this campaign.</p>
+        ) : (
+          <table>
+            <thead>
+              <tr><th>Advocate</th><th>Amount</th><th>Status</th><th></th></tr>
+            </thead>
+            <tbody>
+              {bids.map((b) => (
+                <tr key={b.id}>
+                  <td>{b.advocate_id}</td>
+                  <td>${(b.amount_cents / 100).toLocaleString()}</td>
+                  <td>{b.status}</td>
+                  <td>
+                    {b.status === 'SUBMITTED' && (
+                      <button className="btn primary" onClick={() => selectBid(b.id)}>
+                        Select
+                      </button>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
+
+      <div className="card" style={{ marginTop: 18 }}>
+        <h2>Advocate verification</h2>
+        {advocates.length === 0 ? (
+          <p className="muted">No advocate profiles yet.</p>
+        ) : (
+          <table>
+            <thead>
+              <tr><th>Firm</th><th>Status</th><th></th></tr>
+            </thead>
+            <tbody>
+              {advocates.map((a) => (
+                <tr key={a.id}>
+                  <td>{a.firm_name}</td>
+                  <td>{a.verification_status}</td>
+                  <td>
+                    {a.verification_status !== 'verified' && (
+                      <button
+                        className="btn primary"
+                        onClick={() => verifyAdvocate(a.id, 'verified')}
+                      >
+                        Verify
+                      </button>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
+
+      <div className="card" style={{ marginTop: 18 }}>
+        <h2>Contracts</h2>
+        {contracts.length === 0 ? (
+          <p className="muted">No contract yet. Select a bid to create one.</p>
+        ) : (
+          contracts.map((item) => (
+            <p key={item.id}>
+              <strong>{item.id}</strong> · {item.status} · Advocate {item.advocate_id}
+            </p>
+          ))
+        )}
+      </div>
+
+      <div className="card" style={{ marginTop: 18 }}>
+        <h2>Deliverables</h2>
+        {deliverables.length === 0 ? (
+          <p className="muted">No deliverables submitted for this campaign.</p>
+        ) : (
+          <table>
+            <thead>
+              <tr><th>Milestone</th><th>Status</th><th>Submitted</th></tr>
+            </thead>
+            <tbody>
+              {deliverables.map((d) => (
+                <tr key={d.id}>
+                  <td>{d.campaign_milestones?.name || d.milestone_id}</td>
+                  <td>{d.status}</td>
+                  <td>{d.submitted_at ? new Date(d.submitted_at).toLocaleString() : 'N/A'}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
+
+      <div className="card" style={{ marginTop: 18 }}>
+        <h2>Ratification</h2>
+        <p className="muted">Thresholds: 60% quorum, 85% affirmative approval.</p>
+        {ballot ? (
+          <>
+            <p>Ballot: {ballot.status}</p>
+            <button className="btn primary" onClick={finalize}>Finalize ballot</button>
+          </>
+        ) : (
+          <p>No ballot found for this campaign.</p>
+        )}
+      </div>
+
+      <div className="card" style={{ marginTop: 18 }}>
+        <h2>Disputes</h2>
+        <p className="muted">Review and resolve deliverable disputes before release.</p>
+        <Link href="/admin/disputes" className="btn">Open dispute queue</Link>
+      </div>
+    </>
+  );
+}
