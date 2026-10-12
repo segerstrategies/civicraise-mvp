@@ -68,13 +68,8 @@ export default function LobbyistDashboard() {
 
         if (cancelled) return;
 
-        const queryErrors = [
-          profileResult.error,
-          bidsResult.error,
-          contractsResult.error,
-          rfpResult.error,
-        ].filter(Boolean);
-        if (queryErrors.length) setMessage(queryErrors[0].message);
+        const firstError = profileResult.error || bidsResult.error || contractsResult.error || rfpResult.error;
+        if (firstError) setMessage(firstError.message);
 
         setProfile(profileResult.data);
         setBids(bidsResult.data || []);
