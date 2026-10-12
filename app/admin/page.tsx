@@ -17,6 +17,7 @@ export default function Admin() {
   const [ballot, setBallot] = useState<any>(null);
   const [deliverables, setDeliverables] = useState<any[]>([]);
   const [advocates, setAdvocates] = useState<any[]>([]);
+  const [auditEvents, setAuditEvents] = useState<any[]>([]);
   const [msg, setMsg] = useState('');
 
   async function loadCampaign(campaignId: string) {
@@ -122,6 +123,17 @@ export default function Admin() {
       .order('created_at', { ascending: false });
 
     setAdvocates(av || []);
+
+    if (p?.role === 'admin') {
+      const { data: events } = await sb
+        .from('audit_events')
+        .select('id,event_type,entity_type,entity_id,payload,created_at')
+        .order('created_at', { ascending: false })
+        .limit(50);
+      setAuditEvents(events || []);
+    } else {
+      setAuditEvents([]);
+    }
 
     if (availableCampaigns.length) {
       const existingSelection = availableCampaigns.find(
@@ -260,16 +272,27 @@ export default function Admin() {
           <h2>{campaign?.title || 'No campaign selected'}</h2>
           <p>Status: <strong>{campaign?.status || 'N/A'}</strong></p>
           <div className="actions">
-            <button className="btn" onClick={() => advance('FUNDED')} disabled={!campaign}>
+            <button className="btn" onClick={() => advance('FUNDED')} disabled={campaign?.status !== 'FUNDING'}>
               Mark funded
             </button>
-            <button className="btn" onClick={() => advance('RFP_OPEN')} disabled={!campaign}>
+            <button className="btn" onClick={() => advance('RFP_OPEN')} disabled={campaign?.status !== 'FUNDED'}>
               Open RFP
             </button>
-            <button className="btn" onClick={() => advance('BID_REVIEW')} disabled={!campaign}>
+            <button className="btn" onClick={() => advance('BID_REVIEW')} disabled={campaign?.status !== 'RFP_OPEN'}>
               Start bid review
             </button>
           </div>
+          <p className="muted">
+            {campaign?.status === 'FUNDING'
+              ? 'Mark the campaign funded to open its RFP.'
+              : campaign?.status === 'FUNDED'
+                ? 'Open the RFP to accept bids.'
+                : campaign?.status === 'RFP_OPEN'
+                  ? 'Start bid review before selecting a bid.'
+                  : campaign?.status === 'BID_REVIEW'
+                    ? 'Review submitted bids and select one below.'
+                    : 'Workflow actions are enabled only when valid for the campaign status.'}
+          </p>
         </div>
 
         <div className="card">
@@ -296,7 +319,7 @@ export default function Admin() {
                   <td>{b.status}</td>
                   <td>
                     {b.status === 'SUBMITTED' && (
-                      <button className="btn primary" onClick={() => selectBid(b.id)}>
+                      <button className="btn primary" onClick={() => selectBid(b.id)} disabled={campaign?.status !== 'BID_REVIEW' || rfp?.status !== 'OPEN'}>
                         Select
                       </button>
                     )}
@@ -384,6 +407,29 @@ export default function Admin() {
           </>
         ) : (
           <p>No ballot found for this campaign.</p>
+        )}
+      </div>
+
+      <div className="card" style={{ marginTop: 18 }}>
+        <h2>Audit log</h2>
+        {auditEvents.length === 0 ? (
+          <p className="muted">No audit events recorded.</p>
+        ) : (
+          <table>
+            <thead>
+              <tr><th>Event</th><th>Entity</th><th>Details</th><th>Time</th></tr>
+            </thead>
+            <tbody>
+              {auditEvents.map((event) => (
+                <tr key={event.id}>
+                  <td>{event.event_type}</td>
+                  <td>{event.entity_type}{event.entity_id && <small> · {event.entity_id}</small>}</td>
+                  <td><code>{JSON.stringify(event.payload || {})}</code></td>
+                  <td>{event.created_at ? new Date(event.created_at).toLocaleString() : 'N/A'}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         )}
       </div>
 
