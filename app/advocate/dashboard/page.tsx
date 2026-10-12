@@ -11,8 +11,40 @@ function formatMoney(cents: number) {
   });
 }
 
-function formatDate(value: string) {
-  return new Date(value).toLocaleDateString();
+function formatDate(value?: string | null) {
+  if (!value) return 'No date set';
+  const date = new Date(value);
+  return Number.isNaN(date.getTime())
+    ? 'Date unavailable'
+    : date.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+}
+
+function deadlineLabel(value?: string | null) {
+  if (!value) return 'No deadline announced';
+  const time = new Date(value).getTime();
+  if (Number.isNaN(time)) return 'Deadline unavailable';
+  const days = Math.ceil((time - Date.now()) / (1000 * 60 * 60 * 24));
+  if (days < 0) return 'Deadline passed';
+  if (days === 0) return 'Due today';
+  if (days === 1) return '1 day left';
+  return days + ' days left';
+}
+
+function formatStatus(value?: string | null) {
+  if (!value) return 'Status unavailable';
+  const status = String(value).toUpperCase();
+  const labels: Record<string, string> = {
+    SUBMITTED: 'Awaiting decision',
+    SELECTED: 'Selected',
+    REJECTED: 'Not selected',
+  };
+  return labels[status] || status.replace(/_/g, ' ').toLowerCase();
+}
+
+function deliverableStatus(value?: string | null) {
+  return String(value || '').toUpperCase() === 'SUBMITTED'
+    ? 'Awaiting review'
+    : formatStatus(value);
 }
 
 export default function LobbyistDashboard() {
@@ -62,8 +94,8 @@ export default function LobbyistDashboard() {
           sb.from('rfps')
             .select('id,title,slug,budget_cents,deadline', { count: 'exact' })
             .eq('status', 'OPEN')
-            .order('created_at', { ascending: false })
-            .limit(3),
+            .order('deadline', { ascending: true, nullsFirst: false })
+            .limit(5),
         ]);
 
         if (cancelled) return;
@@ -156,68 +188,94 @@ export default function LobbyistDashboard() {
         </div>
       </div>
 
-      <div className="grid two" style={{ marginTop: 18 }}>
-        <section className="card">
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
-            <h2>Recent bids</h2>
-            <Link href="/advocate/rfps">Browse RFPs</Link>
-          </div>
-          {loading ? <p className="muted">Loading bids…</p> : bids.length === 0 ? (
-            <p className="muted">No bids yet. Review an open RFP to submit your first test bid.</p>
-          ) : (
-            <table>
-              <thead>
-                <tr><th>Opportunity</th><th>Amount</th><th>Status</th><th>Submitted</th></tr>
-              </thead>
-              <tbody>
-                {bids.slice(0, 5).map((bid) => (
-                  <tr key={bid.id}>
-                    <td>{bid.rfps?.title || 'RFP'}</td>
-                    <td>{formatMoney(bid.amount_cents)}</td>
-                    <td>{bid.status}</td>
-                    <td>{formatDate(bid.created_at)}</td>
-                  </tr>
+      <section className="card" style={{ marginTop: 18 }}>
+        <h2>Action center</h2>
+        <p className="muted">RFP deadlines, bid decisions, and deliverable follow-up.</p>
+        <div className="grid two">
+          <div>
+            <h3>Open RFP deadlines</h3>
+            {loading ? <p className="muted">Loading deadlines…</p> : openRfps.length === 0 ? (
+              <p className="muted">No open RFPs right now.</p>
+            ) : (
+              <div style={{ display: 'grid', gap: 14 }}>
+                {openRfps.map((rfp) => (
+                  <div key={rfp.id}>
+                    <strong><Link href={'/advocate/rfps/' + rfp.slug}>{rfp.title}</Link></strong>
+                    <p className="muted">
+                      Deadline: {formatDate(rfp.deadline)} · {deadlineLabel(rfp.deadline)}
+                    </p>
+                    <p className="muted">Budget: {formatMoney(rfp.budget_cents)}</p>
+                  </div>
                 ))}
-              </tbody>
-            </table>
-          )}
-        </section>
-
-        <section className="card">
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
-            <h2>Active contracts</h2>
-            <Link href="/advocate/contracts">View all</Link>
+                {openRfpCount > openRfps.length && (
+                  <Link href="/advocate/rfps">View all {openRfpCount} open RFPs</Link>
+                )}
+              </div>
+            )}
           </div>
-          {loading ? <p className="muted">Loading contracts…</p> : activeContracts.length === 0 ? (
-            <p className="muted">No active contracts yet.</p>
-          ) : (
-            <div style={{ display: 'grid', gap: 14 }}>
-              {activeContracts.slice(0, 5).map((contract) => (
-                <div key={contract.id}>
-                  <strong>{contract.rfps?.title || 'Advocacy contract'}</strong>
-                  <p className="muted">Status: {contract.status}</p>
-                  <Link href={'/advocate/deliverables/' + contract.id}>Manage deliverables</Link>
-                </div>
-              ))}
-            </div>
-          )}
-        </section>
-      </div>
+
+          <div>
+            <h3>Recent bids and decisions</h3>
+            {loading ? <p className="muted">Loading bids…</p> : bids.length === 0 ? (
+              <p className="muted">No bids yet. Browse an open RFP to submit one.</p>
+            ) : (
+              <div style={{ display: 'grid', gap: 14 }}>
+                {bids.slice(0, 5).map((bid) => (
+                  <div key={bid.id}>
+                    <strong>
+                      {bid.rfps?.slug
+                        ? <Link href={'/advocate/rfps/' + bid.rfps.slug}>{bid.rfps?.title || 'RFP'}</Link>
+                        : (bid.rfps?.title || 'RFP')}
+                    </strong>
+                    <p className="muted">
+                      {formatStatus(bid.status)} · {formatMoney(bid.amount_cents)}
+                    </p>
+                    <p className="muted">Submitted {formatDate(bid.created_at)}</p>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <div>
+            <h3>Deliverable status</h3>
+            {loading ? <p className="muted">Loading deliverables…</p> : deliverables.length === 0 ? (
+              <p className="muted">No deliverables submitted yet.</p>
+            ) : (
+              <div style={{ display: 'grid', gap: 14 }}>
+                {deliverables.slice(0, 5).map((item) => {
+                  const contract = contracts.find((row) => row.id === item.contract_id);
+                  return (
+                    <div key={item.id}>
+                      <strong>{contract?.rfps?.title || 'Advocacy deliverable'}</strong>
+                      <p className="muted">
+                        {deliverableStatus(item.status)}
+                        {item.submitted_at ? ' · submitted ' + formatDate(item.submitted_at) : ''}
+                      </p>
+                      <Link href={'/advocate/deliverables/' + item.contract_id}>Open contract</Link>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        </div>
+      </section>
 
       <section className="card" style={{ marginTop: 18 }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
-          <h2>Open opportunities</h2>
-          <Link href="/advocate/rfps">View all RFPs</Link>
+          <h2>Active contracts</h2>
+          <Link href="/advocate/contracts">View all</Link>
         </div>
-        {loading ? <p className="muted">Loading opportunities…</p> : openRfps.length === 0 ? (
-          <p className="muted">No open RFPs right now. Check back later.</p>
+        {loading ? <p className="muted">Loading contracts…</p> : activeContracts.length === 0 ? (
+          <p className="muted">No active contracts yet.</p>
         ) : (
-          <div className="grid">
-            {openRfps.map((rfp) => (
-              <div className="card" key={rfp.id}>
-                <h3>{rfp.title}</h3>
-                <p className="muted">Budget: {formatMoney(rfp.budget_cents)}</p>
-                <Link className="btn" href={'/advocate/rfps/' + rfp.slug}>Review RFP</Link>
+          <div style={{ display: 'grid', gap: 14 }}>
+            {activeContracts.slice(0, 5).map((contract) => (
+              <div key={contract.id}>
+                <strong>{contract.rfps?.title || 'Advocacy contract'}</strong>
+                <p className="muted">Status: {formatStatus(contract.status)}</p>
+                <Link href={'/advocate/deliverables/' + contract.id}>Manage deliverables</Link>
               </div>
             ))}
           </div>
