@@ -12,6 +12,7 @@ declare
   v_current public.campaign_status;
   v_allowed text[];
   v_reason text;
+  v_error text;
 begin
   if auth.uid() is null or not exists (
     select 1 from public.profiles where id = auth.uid() and role = 'admin'
@@ -63,13 +64,21 @@ begin
     return jsonb_build_object('ok',false,'message',v_reason);
   end if;
 
-  update public.campaigns
-  set status = p_target_status::public.campaign_status
-  where id = p_campaign_id;
+  begin
+    update public.campaigns
+    set status = p_target_status::public.campaign_status
+    where id = p_campaign_id;
 
-  insert into public.audit_events(actor_id,event_type,entity_type,entity_id,payload)
-  values(auth.uid(),'CAMPAIGN_STATUS_CHANGED','campaign',p_campaign_id,
-    jsonb_build_object('from',v_current,'to',p_target_status));
+    insert into public.audit_events(actor_id,event_type,entity_type,entity_id,payload)
+    values(auth.uid(),'CAMPAIGN_STATUS_CHANGED','campaign',p_campaign_id,
+      jsonb_build_object('from',v_current,'to',p_target_status));
+  exception when others then
+    get stacked diagnostics v_error = message_text;
+    insert into public.audit_events(actor_id,event_type,entity_type,entity_id,payload)
+    values(auth.uid(),'CAMPAIGN_TRANSITION_FAILED','campaign',p_campaign_id,
+      jsonb_build_object('from',v_current,'to',p_target_status,'reason',v_error));
+    return jsonb_build_object('ok',false,'message','Campaign transition failed; no change was saved.');
+  end;
 
   return jsonb_build_object('ok',true,'message',format('Campaign advanced to %s.',p_target_status));
 end;
@@ -91,6 +100,7 @@ declare
   v_verification_status text;
   v_contract_id uuid;
   v_reason text;
+  v_error text;
 begin
   if auth.uid() is null or not exists (
     select 1 from public.profiles where id = auth.uid() and role = 'admin'
@@ -143,29 +153,37 @@ begin
     return jsonb_build_object('ok',false,'message',v_reason);
   end if;
 
-  update public.bids set status = 'SELECTED' where id = p_bid_id;
-  update public.bids set status = 'REJECTED'
-  where rfp_id = v_rfp_id and id <> p_bid_id;
+  begin
+    update public.bids set status = 'SELECTED' where id = p_bid_id;
+    update public.bids set status = 'REJECTED'
+    where rfp_id = v_rfp_id and id <> p_bid_id;
 
-  insert into public.contracts(rfp_id,advocate_id,status)
-  values(v_rfp_id,v_advocate_id,'ACTIVE')
-  returning id into v_contract_id;
+    insert into public.contracts(rfp_id,advocate_id,status)
+    values(v_rfp_id,v_advocate_id,'ACTIVE')
+    returning id into v_contract_id;
 
-  update public.rfps set status = 'AWARDED' where id = v_rfp_id;
+    update public.rfps set status = 'AWARDED' where id = v_rfp_id;
 
-  update public.campaigns set status = 'ADVOCATE_SELECTED' where id = v_campaign_id;
-  insert into public.audit_events(actor_id,event_type,entity_type,entity_id,payload)
-  values(auth.uid(),'CAMPAIGN_STATUS_CHANGED','campaign',v_campaign_id,
-    jsonb_build_object('from','BID_REVIEW','to','ADVOCATE_SELECTED','bid_id',p_bid_id));
+    update public.campaigns set status = 'ADVOCATE_SELECTED' where id = v_campaign_id;
+    insert into public.audit_events(actor_id,event_type,entity_type,entity_id,payload)
+    values(auth.uid(),'CAMPAIGN_STATUS_CHANGED','campaign',v_campaign_id,
+      jsonb_build_object('from','BID_REVIEW','to','ADVOCATE_SELECTED','bid_id',p_bid_id));
 
-  update public.campaigns set status = 'CONTRACT_ACTIVE' where id = v_campaign_id;
-  insert into public.audit_events(actor_id,event_type,entity_type,entity_id,payload)
-  values(auth.uid(),'CAMPAIGN_STATUS_CHANGED','campaign',v_campaign_id,
-    jsonb_build_object('from','ADVOCATE_SELECTED','to','CONTRACT_ACTIVE','bid_id',p_bid_id));
+    update public.campaigns set status = 'CONTRACT_ACTIVE' where id = v_campaign_id;
+    insert into public.audit_events(actor_id,event_type,entity_type,entity_id,payload)
+    values(auth.uid(),'CAMPAIGN_STATUS_CHANGED','campaign',v_campaign_id,
+      jsonb_build_object('from','ADVOCATE_SELECTED','to','CONTRACT_ACTIVE','bid_id',p_bid_id));
 
-  insert into public.audit_events(actor_id,event_type,entity_type,entity_id,payload)
-  values(auth.uid(),'BID_SELECTED','bid',p_bid_id,
-    jsonb_build_object('contract_id',v_contract_id,'campaign_id',v_campaign_id,'rfp_id',v_rfp_id));
+    insert into public.audit_events(actor_id,event_type,entity_type,entity_id,payload)
+    values(auth.uid(),'BID_SELECTED','bid',p_bid_id,
+      jsonb_build_object('contract_id',v_contract_id,'campaign_id',v_campaign_id,'rfp_id',v_rfp_id));
+  exception when others then
+    get stacked diagnostics v_error = message_text;
+    insert into public.audit_events(actor_id,event_type,entity_type,entity_id,payload)
+    values(auth.uid(),'BID_SELECTION_FAILED','bid',p_bid_id,
+      jsonb_build_object('campaign_id',v_campaign_id,'rfp_id',v_rfp_id,'reason',v_error));
+    return jsonb_build_object('ok',false,'message','Bid award failed; the transaction was rolled back.');
+  end;
 
   return jsonb_build_object(
     'ok',true,
