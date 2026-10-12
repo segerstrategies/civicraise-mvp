@@ -53,6 +53,7 @@ export default function LobbyistDashboard() {
   const [bids, setBids] = useState<any[]>([]);
   const [contracts, setContracts] = useState<any[]>([]);
   const [deliverables, setDeliverables] = useState<any[]>([]);
+  const [milestones, setMilestones] = useState<any[]>([]);
   const [openRfps, setOpenRfps] = useState<any[]>([]);
   const [openRfpCount, setOpenRfpCount] = useState(0);
   const [message, setMessage] = useState('');
@@ -112,12 +113,34 @@ export default function LobbyistDashboard() {
         const contractIds = (contractsResult.data || []).map((contract: any) => contract.id);
         if (contractIds.length) {
           const { data, error } = await sb.from('deliverables')
-            .select('id,status,submitted_at,contract_id')
+            .select('id,status,submitted_at,contract_id,milestone_id')
             .in('contract_id', contractIds)
             .order('submitted_at', { ascending: false });
           if (cancelled) return;
           if (error) setMessage(error.message);
           else setDeliverables(data || []);
+        }
+
+        const activeCampaignIds = Array.from(new Set(
+          (contractsResult.data || [])
+            .filter((contract: any) => ['ACTIVE', 'IN_PROGRESS'].includes(String(contract.status).toUpperCase()))
+            .map((contract: any) => contract.rfps?.campaign_id)
+            .filter(Boolean)
+        ));
+        if (activeCampaignIds.length) {
+          const { data: milestoneRows, error } = await sb.from('campaign_milestones')
+            .select('*')
+            .in('campaign_id', activeCampaignIds)
+            .order('sequence', { ascending: true });
+          if (cancelled) return;
+          if (error) setMessage(error.message);
+          else {
+            setMilestones((milestoneRows || [])
+              .filter((item: any) => Boolean(item.due_at))
+              .sort((a: any, b: any) => new Date(a.due_at).getTime() - new Date(b.due_at).getTime()));
+          }
+        } else {
+          setMilestones([]);
         }
       } catch (error) {
         if (!cancelled) {
@@ -153,6 +176,13 @@ export default function LobbyistDashboard() {
   const pendingDeliverables = deliverables.filter((item) =>
     String(item.status).toUpperCase() === 'SUBMITTED'
   );
+  const scheduledMilestones = milestones.map((milestone) => {
+    const contract = activeContracts.find((row) => row.rfps?.campaign_id === milestone.campaign_id);
+    const deliverable = deliverables.find((row) =>
+      row.contract_id === contract?.id && row.milestone_id === milestone.id
+    );
+    return { milestone, contract, deliverable };
+  }).filter((item) => Boolean(item.contract));
 
   return (
     <>
@@ -238,6 +268,31 @@ export default function LobbyistDashboard() {
           </div>
 
           <div>
+            <h3>Contract milestone deadlines</h3>
+            {loading ? <p className="muted">Loading milestone deadlines…</p> : scheduledMilestones.length === 0 ? (
+              <p className="muted">No milestone due dates scheduled. An admin can add them in the operations console.</p>
+            ) : (
+              <div style={{ display: 'grid', gap: 14 }}>
+                {scheduledMilestones.slice(0, 5).map(({ milestone, contract, deliverable }) => (
+                  <div key={milestone.id}>
+                    <strong>{contract.rfps?.title || 'Advocacy contract'}</strong>
+                    <p className="muted">{milestone.sequence}. {milestone.name}</p>
+                    <p className="muted">Due {formatDate(milestone.due_at)} · {deadlineLabel(milestone.due_at)}</p>
+                    <p className="muted">
+                      {deliverable
+                        ? 'Deliverable: ' + deliverableStatus(deliverable.status)
+                        : 'No deliverable submitted yet'}
+                    </p>
+                    <Link href={'/advocate/deliverables/' + contract.id}>
+                      {deliverable ? 'View contract' : 'Submit deliverable'}
+                    </Link>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <div>
             <h3>Deliverable status</h3>
             {loading ? <p className="muted">Loading deliverables…</p> : deliverables.length === 0 ? (
               <p className="muted">No deliverables submitted yet.</p>
@@ -251,6 +306,9 @@ export default function LobbyistDashboard() {
                       <p className="muted">
                         {deliverableStatus(item.status)}
                         {item.submitted_at ? ' · submitted ' + formatDate(item.submitted_at) : ''}
+                        {milestones.find((milestone) => milestone.id === item.milestone_id)?.due_at
+                          ? ' · due ' + formatDate(milestones.find((milestone) => milestone.id === item.milestone_id)?.due_at)
+                          : ''}
                       </p>
                       <Link href={'/advocate/deliverables/' + item.contract_id}>Open contract</Link>
                     </div>

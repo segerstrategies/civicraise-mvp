@@ -5,6 +5,14 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase-browser';
 
+function toLocalDateTime(value?: string | null) {
+  if (!value) return '';
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return '';
+  const local = new Date(date.getTime() - date.getTimezoneOffset() * 60000);
+  return local.toISOString().slice(0, 16);
+}
+
 export default function Admin() {
   const [user, setUser] = useState<any>(null);
   const [profile, setProfile] = useState<any>(null);
@@ -18,6 +26,10 @@ export default function Admin() {
   const [deliverables, setDeliverables] = useState<any[]>([]);
   const [advocates, setAdvocates] = useState<any[]>([]);
   const [auditEvents, setAuditEvents] = useState<any[]>([]);
+  const [milestones, setMilestones] = useState<any[]>([]);
+  const [dueDateDrafts, setDueDateDrafts] = useState<Record<string, string>>({});
+  const [savingMilestoneId, setSavingMilestoneId] = useState('');
+  const [milestoneMessage, setMilestoneMessage] = useState('');
   const [msg, setMsg] = useState('');
 
   async function loadCampaign(campaignId: string) {
@@ -40,8 +52,24 @@ export default function Admin() {
       setContracts([]);
       setBallot(null);
       setDeliverables([]);
+      setMilestones([]);
+      setDueDateDrafts({});
       return;
     }
+
+    const { data: milestoneRows } = await sb
+      .from('campaign_milestones')
+      .select('*')
+      .eq('campaign_id', c.id)
+      .order('sequence');
+
+    const loadedMilestones = milestoneRows || [];
+    setMilestones(loadedMilestones);
+    setDueDateDrafts(Object.fromEntries(loadedMilestones.map((item: any) => [
+      item.id,
+      toLocalDateTime(item.due_at),
+    ])));
+    setMilestoneMessage('');
 
     const { data: r } = await sb
       .from('rfps')
@@ -199,6 +227,36 @@ export default function Admin() {
     await load();
   }
 
+  async function saveMilestoneDueDate(milestoneId: string) {
+    const sb = createClient();
+    if (!sb) return;
+
+    const value = dueDateDrafts[milestoneId] || '';
+    const dueAt = value ? new Date(value).toISOString() : null;
+    setSavingMilestoneId(milestoneId);
+    setMilestoneMessage('');
+
+    const { data, error } = await sb.rpc('admin_set_milestone_due_at', {
+      p_milestone_id: milestoneId,
+      p_due_at: dueAt,
+    });
+
+    setSavingMilestoneId('');
+    if (error) {
+      setMilestoneMessage('Could not save the deadline. Apply the milestone deadline migration first. ' + error.message);
+      return;
+    }
+    if (data?.ok === false) {
+      setMilestoneMessage(data.message || 'The deadline was not saved.');
+      return;
+    }
+
+    setMilestones((rows) => rows.map((item) =>
+      item.id === milestoneId ? { ...item, due_at: dueAt } : item
+    ));
+    setMilestoneMessage(data?.message || 'Milestone deadline saved.');
+  }
+
   async function finalize() {
     if (!ballot) return;
 
@@ -300,6 +358,49 @@ export default function Admin() {
           <h2>{rfp?.title || 'No RFP for this campaign'}</h2>
           <p>{bids.length} bid(s) submitted</p>
         </div>
+      </div>
+
+      <div className="card" style={{ marginTop: 18 }}>
+        <h2>Milestone schedule</h2>
+        <p className="muted">Set or clear a due date for each campaign milestone. Changes are recorded in the audit log.</p>
+        {milestoneMessage && <p className="muted">{milestoneMessage}</p>}
+        {milestones.length === 0 ? (
+          <p className="muted">No milestones configured for this campaign yet.</p>
+        ) : (
+          <table>
+            <thead>
+              <tr><th>Milestone</th><th>Amount</th><th>Due date and time</th><th></th></tr>
+            </thead>
+            <tbody>
+              {milestones.map((item) => (
+                <tr key={item.id}>
+                  <td>{item.sequence}. {item.name}</td>
+                  <td>${(item.amount_cents / 100).toLocaleString()}</td>
+                  <td>
+                    <input
+                      aria-label={'Due date for ' + item.name}
+                      type="datetime-local"
+                      value={dueDateDrafts[item.id] ?? toLocalDateTime(item.due_at)}
+                      onChange={(event) => setDueDateDrafts((drafts) => ({
+                        ...drafts,
+                        [item.id]: event.target.value,
+                      }))}
+                    />
+                  </td>
+                  <td>
+                    <button
+                      className="btn"
+                      onClick={() => saveMilestoneDueDate(item.id)}
+                      disabled={savingMilestoneId === item.id}
+                    >
+                      {savingMilestoneId === item.id ? 'Saving…' : 'Save deadline'}
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
       </div>
 
       <div className="card" style={{ marginTop: 18 }}>
