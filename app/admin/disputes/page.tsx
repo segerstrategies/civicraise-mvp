@@ -1,10 +1,164 @@
 'use client';
-import { useEffect, useState } from 'react';
+
+import { useCallback, useEffect, useState } from 'react';
+import Link from 'next/link';
 import { createClient } from '@/lib/supabase-browser';
+
 export default function DisputesAdmin() {
-  const [rows, setRows] = useState<any[]>([]); const [msg, setMsg] = useState('');
-  async function load(){ const sb=createClient(); if(!sb)return; const {data}=await sb.from('disputes').select('*,profiles(full_name),deliverables(id,description)').order('created_at',{ascending:false}); setRows(data||[]); }
-  useEffect(()=>{load()},[]);
-  async function resolve(id:string,resolution:string){const r=await fetch('/api/admin/dispute',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({disputeId:id,resolution})});const j=await r.json();setMsg(j.message);load();}
-  return <><div className="eyebrow">ADMIN · DISPUTES</div><h1>Dispute queue</h1>{msg&&<div className="notice">{msg}</div>}<div className="card"><table><thead><tr><th>Raised by</th><th>Reason</th><th>Status</th><th>Action</th></tr></thead><tbody>{rows.map(d=><tr key={d.id}><td>{d.profiles?.full_name||d.raised_by}</td><td>{d.reason}</td><td>{d.status}</td><td>{d.status==='OPEN'&&<div className="actions"><button className="btn" onClick={()=>resolve(d.id,'CURED')}>Cure / accept</button><button className="btn" onClick={()=>resolve(d.id,'UPHELD')}>Require cure</button></div>}</td></tr>)}</tbody></table>{rows.length===0&&<p className="muted">No disputes.</p>}</div></>;
+  const [rows, setRows] = useState<any[]>([]);
+  const [message, setMessage] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [busyId, setBusyId] = useState('');
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    setMessage('');
+    try {
+      const supabase = createClient();
+      if (!supabase) {
+        setMessage('Supabase is not configured.');
+        return;
+      }
+
+      const { data: { user }, error: authError } = await supabase.auth.getUser();
+      if (authError) {
+        setMessage(authError.message);
+        return;
+      }
+      if (!user) {
+        setMessage('Sign in to access the dispute queue.');
+        return;
+      }
+
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', user.id)
+        .maybeSingle();
+
+      if (profileError) {
+        setMessage(profileError.message);
+        return;
+      }
+      if (profile?.role !== 'admin') {
+        setMessage('Admin access is required to view disputes.');
+        return;
+      }
+      setIsAdmin(true);
+
+      const { data, error } = await supabase
+        .from('disputes')
+        .select('*,profiles(full_name),deliverables(id,description)')
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        setMessage(error.message);
+        return;
+      }
+      setRows(data || []);
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : 'Could not load disputes.');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    void load();
+  }, [load]);
+
+  async function resolve(id: string, resolution: 'CURED' | 'UPHELD') {
+    if (busyId) return;
+    setBusyId(id);
+    setMessage('');
+    try {
+      const response = await fetch('/api/admin/dispute', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ disputeId: id, resolution }),
+      });
+      const result = await response.json().catch(() => ({}));
+      setMessage(result.message || (response.ok ? 'Dispute updated.' : 'Dispute could not be updated.'));
+      if (response.ok) await load();
+    } catch {
+      setMessage('Unable to reach CivicRaise. Check your connection and try again.');
+    } finally {
+      setBusyId('');
+    }
+  }
+
+  return (
+    <>
+      <div className="eyebrow">ADMIN · DISPUTES</div>
+      <h1>Dispute queue</h1>
+      {message && (
+        <div className="notice" role="alert">
+          {message}
+          {message.toLowerCase().includes('sign in') && <> <Link href="/auth">Sign in</Link></>}
+          {message.toLowerCase().includes('could not load') && (
+            <button type="button" className="btn" onClick={() => void load()}>Retry</button>
+          )}
+        </div>
+      )}
+
+      {loading ? (
+        <div className="card"><p className="muted">Loading disputes…</p></div>
+      ) : !isAdmin ? (
+        <div className="card"><p className="muted">The dispute queue is available to admins.</p></div>
+      ) : rows.length === 0 ? (
+        <div className="card"><p className="muted">No disputes are waiting for review.</p></div>
+      ) : (
+        <div className="card">
+          <table>
+            <thead>
+              <tr><th>Raised by</th><th>Reason</th><th>Status</th><th>Action</th></tr>
+            </thead>
+            <tbody>
+              {rows.map((dispute) => {
+                const deliverable = Array.isArray(dispute.deliverables)
+                  ? dispute.deliverables[0]
+                  : dispute.deliverables;
+                return (
+                  <tr key={dispute.id}>
+                    <td>{dispute.profiles?.full_name || dispute.raised_by}</td>
+                    <td>
+                      {dispute.reason}
+                      {deliverable?.description && (
+                        <details>
+                          <summary>View submitted work</summary>
+                          <p>{deliverable.description}</p>
+                        </details>
+                      )}
+                    </td>
+                    <td>{String(dispute.status).replace(/_/g, ' ')}</td>
+                    <td>
+                      {dispute.status === 'OPEN' && (
+                        <div className="actions">
+                          <button
+                            className="btn"
+                            onClick={() => resolve(dispute.id, 'CURED')}
+                            disabled={Boolean(busyId)}
+                          >
+                            {busyId === dispute.id ? 'Saving…' : 'Accept deliverable'}
+                          </button>
+                          <button
+                            className="btn"
+                            onClick={() => resolve(dispute.id, 'UPHELD')}
+                            disabled={Boolean(busyId)}
+                          >
+                            {busyId === dispute.id ? 'Saving…' : 'Require a cure'}
+                          </button>
+                        </div>
+                      )}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </>
+  );
 }
