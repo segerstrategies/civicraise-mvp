@@ -11,6 +11,7 @@ export default function Ratification() {
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(true);
   const [busyBallotId, setBusyBallotId] = useState('');
+  const [busyVote, setBusyVote] = useState<boolean | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -104,6 +105,7 @@ export default function Ratification() {
 
   async function vote(ballotId: string, approve: boolean) {
     setBusyBallotId(ballotId);
+    setBusyVote(approve);
     setMessages((current) => ({ ...current, [ballotId]: '' }));
 
     try {
@@ -134,6 +136,7 @@ export default function Ratification() {
       }));
     } finally {
       setBusyBallotId('');
+      setBusyVote(null);
     }
   }
 
@@ -188,14 +191,14 @@ export default function Ratification() {
                     className="btn primary"
                     onClick={() => vote(ballot.id, true)}
                   >
-                    {busyBallotId === ballot.id && votes[ballot.id] === true ? 'Saving…' : 'Approve deliverable'}
+                    {busyBallotId === ballot.id && busyVote === true ? 'Saving…' : 'Approve deliverable'}
                   </button>
                   <button
                     disabled={Boolean(busyBallotId)}
                     className="btn"
                     onClick={() => vote(ballot.id, false)}
                   >
-                    {busyBallotId === ballot.id && votes[ballot.id] === false ? 'Saving…' : 'Reject / challenge'}
+                    {busyBallotId === ballot.id && busyVote === false ? 'Saving…' : 'Reject / challenge'}
                   </button>
                 </div>
                 {messages[ballot.id] && <div className="notice">{messages[ballot.id]}</div>}
