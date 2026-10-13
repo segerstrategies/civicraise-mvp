@@ -159,9 +159,6 @@ export default function DisputesAdmin() {
           </table>
         </div>
       )}
-      {message && isAdmin && !loading && !message.toLowerCase().includes('required') && (
-        <div className="notice" role="status" aria-live="polite">{message}</div>
-      )}
     </>
   );
 }
