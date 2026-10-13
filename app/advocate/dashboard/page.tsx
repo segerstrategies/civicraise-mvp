@@ -81,7 +81,7 @@ export default function LobbyistDashboard() {
 
         const [profileResult, bidsResult, contractsResult, rfpResult] = await Promise.all([
           sb.from('advocate_profiles')
-            .select('firm_name,verification_status,registration_status')
+            .select('firm_name,bio,verification_status,registration_status')
             .eq('id', currentUser.id)
             .maybeSingle(),
           sb.from('bids')
@@ -193,6 +193,18 @@ export default function LobbyistDashboard() {
         {' · '}Verification: {profile?.verification_status || 'profile not started'}
       </p>
       {message && <div className="notice">{message}</div>}
+      {String(profile?.verification_status || 'pending').toLowerCase() !== 'verified' && (
+        <section className="notice" aria-labelledby="profile-verification-heading">
+          <h2 id="profile-verification-heading">
+            Advocate profile: {String(profile?.verification_status || 'not started').replace(/_/g, ' ')}
+          </h2>
+          <p>
+            An admin must verify your advocate profile before a bid can be awarded.
+            Check that your firm name, registration details, and bio are up to date.
+          </p>
+          <Link href="/advocate" className="btn">Review advocate profile</Link>
+        </section>
+      )}
       <div className="actions">
         <Link href="/advocate/rfps" className="btn primary">Browse open RFPs</Link>
         <Link href="/advocate/contracts" className="btn">All contracts</Link>
