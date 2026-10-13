@@ -4,9 +4,19 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { createClient } from '@/lib/supabase-browser';
 
+type VoteRecord = {
+  approve: boolean;
+  pledgedCents: number;
+};
+
+const formatMoney = (cents: number) => (Number(cents || 0) / 100).toLocaleString(undefined, {
+  style: 'currency',
+  currency: 'USD',
+});
+
 export default function Ratification() {
   const [ballots, setBallots] = useState<any[]>([]);
-  const [votes, setVotes] = useState<Record<string, boolean>>({});
+  const [votes, setVotes] = useState<Record<string, VoteRecord>>({});
   const [messages, setMessages] = useState<Record<string, string>>({});
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(true);
@@ -17,13 +27,13 @@ export default function Ratification() {
     let cancelled = false;
 
     async function loadBallots() {
-      const sb = createClient();
-      if (!sb) {
+      const supabase = createClient();
+      if (!supabase) {
         setMessage('Supabase is not configured.');
         return;
       }
 
-      const { data: { user }, error: authError } = await sb.auth.getUser();
+      const { data: { user }, error: authError } = await supabase.auth.getUser();
       if (cancelled) return;
       if (authError) {
         setMessage(authError.message);
@@ -34,7 +44,7 @@ export default function Ratification() {
         return;
       }
 
-      const { data: pledgeRows, error: pledgeError } = await sb
+      const { data: pledgeRows, error: pledgeError } = await supabase
         .from('pledges')
         .select('campaign_id')
         .eq('user_id', user.id);
@@ -53,7 +63,7 @@ export default function Ratification() {
         return;
       }
 
-      const { data: ballotRows, error: ballotError } = await sb
+      const { data: ballotRows, error: ballotError } = await supabase
         .from('ratification_ballots')
         .select('id,campaign_id,opened_at,quorum_percent,approval_percent,campaigns(title,bill)')
         .in('campaign_id', campaignIds)
@@ -71,9 +81,9 @@ export default function Ratification() {
       const ballotIds = rows.map((ballot: any) => ballot.id);
       if (ballotIds.length === 0) return;
 
-      const { data: voteRows, error: voteError } = await sb
+      const { data: voteRows, error: voteError } = await supabase
         .from('ratification_votes')
-        .select('ballot_id,approve')
+        .select('ballot_id,approve,pledged_cents')
         .eq('user_id', user.id)
         .in('ballot_id', ballotIds);
 
@@ -84,7 +94,10 @@ export default function Ratification() {
       }
 
       setVotes(Object.fromEntries(
-        (voteRows ?? []).map((vote: any) => [vote.ballot_id, Boolean(vote.approve)])
+        (voteRows ?? []).map((vote: any) => [
+          vote.ballot_id,
+          { approve: Boolean(vote.approve), pledgedCents: Number(vote.pledged_cents || 0) },
+        ])
       ));
     }
 
@@ -124,15 +137,18 @@ export default function Ratification() {
         return;
       }
 
-      setVotes((current) => ({ ...current, [ballotId]: approve }));
+      setVotes((current) => ({
+        ...current,
+        [ballotId]: { approve, pledgedCents: Number(result.pledgedCents || 0) },
+      }));
       setMessages((current) => ({
         ...current,
         [ballotId]: result.message || 'Vote recorded.',
       }));
-    } catch (error) {
+    } catch {
       setMessages((current) => ({
         ...current,
-        [ballotId]: error instanceof Error ? error.message : 'Your vote could not be recorded.',
+        [ballotId]: 'Unable to reach CivicRaise. Check your connection and try again.',
       }));
     } finally {
       setBusyBallotId('');
@@ -151,7 +167,7 @@ export default function Ratification() {
       </p>
 
       {message && (
-        <div className="notice">
+        <div className="notice" role="alert">
           {message} {hasSignInMessage && <Link href="/auth">Sign in</Link>}
         </div>
       )}
@@ -166,24 +182,27 @@ export default function Ratification() {
       ) : (
         <div className="grid">
           {ballots.map((ballot) => {
-            const hasVoted = Object.prototype.hasOwnProperty.call(votes, ballot.id);
+            const currentVote = votes[ballot.id];
             const campaign = Array.isArray(ballot.campaigns) ? ballot.campaigns[0] : ballot.campaigns;
 
             return (
               <section className="card" key={ballot.id}>
-                <div className="eyebrow">
-                  {campaign?.bill || 'CAMPAIGN'} · OPEN BALLOT
-                </div>
+                <div className="eyebrow">{campaign?.bill || 'CAMPAIGN'} · OPEN BALLOT</div>
                 <h2>{campaign?.title || 'Review completed advocacy work'}</h2>
                 <p>
                   Quorum is {ballot.quorum_percent}% of pledged dollars, followed by{' '}
                   {ballot.approval_percent}% affirmative approval among participating dollars.
                 </p>
-                {hasVoted && (
-                  <p className="muted">
-                    Your current vote: {votes[ballot.id] ? 'Approve' : 'Reject / challenge'}.
-                    {' '}You can update it while the ballot is open.
-                  </p>
+                {currentVote && (
+                  <div className="notice">
+                    <p>
+                      Your current vote: <strong>{currentVote.approve ? 'Approve' : 'Reject / challenge'}</strong>
+                    </p>
+                    <p>
+                      Voting weight recorded: <strong>{formatMoney(currentVote.pledgedCents)}</strong>
+                    </p>
+                    <p className="muted">You can update your vote while the ballot is open.</p>
+                  </div>
                 )}
                 <div className="actions">
                   <button
@@ -191,17 +210,17 @@ export default function Ratification() {
                     className="btn primary"
                     onClick={() => vote(ballot.id, true)}
                   >
-                    {busyBallotId === ballot.id && busyVote === true ? 'Saving…' : 'Approve deliverable'}
+                    {busyBallotId === ballot.id && busyVote === true ? 'Saving…' : currentVote?.approve ? 'Keep approval' : 'Approve deliverable'}
                   </button>
                   <button
                     disabled={Boolean(busyBallotId)}
                     className="btn"
                     onClick={() => vote(ballot.id, false)}
                   >
-                    {busyBallotId === ballot.id && busyVote === false ? 'Saving…' : 'Reject / challenge'}
+                    {busyBallotId === ballot.id && busyVote === false ? 'Saving…' : currentVote && !currentVote.approve ? 'Keep challenge' : 'Reject / challenge'}
                   </button>
                 </div>
-                {messages[ballot.id] && <div className="notice">{messages[ballot.id]}</div>}
+                {messages[ballot.id] && <div className="notice" role="status" aria-live="polite">{messages[ballot.id]}</div>}
               </section>
             );
           })}
