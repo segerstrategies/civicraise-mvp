@@ -47,6 +47,24 @@ function deliverableStatus(value?: string | null) {
     : formatStatus(value);
 }
 
+function downloadFile(name: string, content: string, type: string) {
+  const blob = new Blob([content], { type });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = name;
+  link.click();
+  URL.revokeObjectURL(url);
+}
+
+function csvCell(value: unknown) {
+  return '"' + String(value ?? '').replace(/"/g, '""') + '"';
+}
+
+function icsText(value: unknown) {
+  return String(value ?? '').replace(/\\/g, '\\\\').replace(/\n/g, '\\n').replace(/,/g, '\\,').replace(/;/g, '\\;');
+}
+
 export default function LobbyistDashboard() {
   const [user, setUser] = useState<any>(null);
   const [profile, setProfile] = useState<any>(null);
@@ -95,8 +113,7 @@ export default function LobbyistDashboard() {
           sb.from('rfps')
             .select('id,title,slug,budget_cents,deadline', { count: 'exact' })
             .eq('status', 'OPEN')
-            .order('deadline', { ascending: true, nullsFirst: false })
-            .limit(5),
+            .order('deadline', { ascending: true, nullsFirst: false }),
         ]);
 
         if (cancelled) return;
@@ -184,6 +201,29 @@ export default function LobbyistDashboard() {
     return { milestone, contract, deliverable };
   }).filter((item) => Boolean(item.contract));
 
+  function exportBids() {
+    const rows = [
+      ['RFP', 'Bid amount', 'Status', 'Submitted'],
+      ...bids.map((bid) => [bid.rfps?.title || 'RFP', (Number(bid.amount_cents || 0) / 100).toFixed(2), formatStatus(bid.status), bid.created_at || '']),
+    ];
+    downloadFile('civicraise-bids.csv', rows.map((row) => row.map(csvCell).join(',')).join('\r\n'), 'text/csv;charset=utf-8');
+  }
+
+  function exportRfpCalendar() {
+    const deadlines = openRfps.filter((rfp) => rfp.deadline && !Number.isNaN(new Date(rfp.deadline).getTime()));
+    if (!deadlines.length) {
+      setMessage('There are no dated open RFP deadlines to add to your calendar.');
+      return;
+    }
+    const stamp = new Date().toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
+    const events = deadlines.map((rfp) => {
+      const due = new Date(rfp.deadline).toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
+      return ['BEGIN:VEVENT', 'UID:' + rfp.id + '@civicraise', 'DTSTAMP:' + stamp, 'DTSTART:' + due,
+        'SUMMARY:' + icsText('CivicRaise RFP deadline: ' + rfp.title), 'DESCRIPTION:' + icsText('Budget: ' + formatMoney(rfp.budget_cents)), 'END:VEVENT'].join('\r\n');
+    });
+    downloadFile('civicraise-rfp-deadlines.ics', ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//CivicRaise//RFP deadlines//EN', ...events, 'END:VCALENDAR'].join('\r\n'), 'text/calendar;charset=utf-8');
+  }
+
   return (
     <>
       <div className="eyebrow">ADVOCATE WORKSPACE</div>
@@ -209,6 +249,8 @@ export default function LobbyistDashboard() {
         <Link href="/advocate/rfps" className="btn primary">Browse open RFPs</Link>
         <Link href="/advocate/contracts" className="btn">All contracts</Link>
         <Link href="/advocate" className="btn">Edit profile</Link>
+        <button type="button" className="btn" onClick={exportBids} disabled={!bids.length}>Export bids CSV</button>
+        <button type="button" className="btn" onClick={exportRfpCalendar} disabled={!openRfps.some((rfp) => rfp.deadline)}>Add deadlines to calendar</button>
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(190px, 1fr))', gap: 18, marginTop: 18 }}>
@@ -240,16 +282,17 @@ export default function LobbyistDashboard() {
               <p className="muted">No open RFPs right now.</p>
             ) : (
               <div style={{ display: 'grid', gap: 14 }}>
-                {openRfps.map((rfp) => (
+                {openRfps.slice(0, 5).map((rfp) => (
                   <div key={rfp.id}>
                     <strong><Link href={'/advocate/rfps/' + rfp.slug}>{rfp.title}</Link></strong>
                     <p className="muted">
                       Deadline: {formatDate(rfp.deadline)} · {deadlineLabel(rfp.deadline)}
                     </p>
                     <p className="muted">Budget: {formatMoney(rfp.budget_cents)}</p>
+                    <p className="muted">{deadlineLabel(rfp.deadline)}</p>
                   </div>
                 ))}
-                {openRfpCount > openRfps.length && (
+                {openRfpCount > 5 && (
                   <Link href="/advocate/rfps">View all {openRfpCount} open RFPs</Link>
                 )}
               </div>

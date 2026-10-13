@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 
 type Rfp = {
@@ -32,11 +32,31 @@ function formatDeadline(value?: string | null) {
 export default function RfpBrowser({ rfps }: { rfps: Rfp[] }) {
   const [query, setQuery] = useState('');
   const [sort, setSort] = useState<'deadline' | 'budget-low' | 'budget-high'>('deadline');
+  const [savedIds, setSavedIds] = useState<string[]>([]);
+  const [savedOnly, setSavedOnly] = useState(false);
+
+  useEffect(() => {
+    try {
+      const stored = JSON.parse(window.localStorage.getItem('civicraise:saved-rfps') || '[]');
+      if (Array.isArray(stored)) setSavedIds(stored.filter((value) => typeof value === 'string'));
+    } catch {
+      // RFP browsing does not depend on browser storage.
+    }
+  }, []);
+
+  function toggleSaved(rfp: Rfp) {
+    const id = String(rfp.id || rfp.slug || '');
+    if (!id) return;
+    const next = savedIds.includes(id) ? savedIds.filter((value) => value !== id) : [...savedIds, id];
+    setSavedIds(next);
+    try { window.localStorage.setItem('civicraise:saved-rfps', JSON.stringify(next)); } catch { /* Keep this session's state. */ }
+  }
 
   const visibleRfps = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
     return rfps
-      .filter((rfp) => [rfp.title, rfp.campaign].filter(Boolean).join(' ').toLowerCase().includes(normalizedQuery))
+      .filter((rfp) => (!savedOnly || savedIds.includes(String(rfp.id || rfp.slug || '')))
+        && [rfp.title, rfp.campaign].filter(Boolean).join(' ').toLowerCase().includes(normalizedQuery))
       .sort((left, right) => {
         if (sort === 'budget-low') return cents(left) - cents(right);
         if (sort === 'budget-high') return cents(right) - cents(left);
@@ -45,7 +65,7 @@ export default function RfpBrowser({ rfps }: { rfps: Rfp[] }) {
         const rightDeadline = right.deadline ? new Date(right.deadline).getTime() : Number.POSITIVE_INFINITY;
         return leftDeadline - rightDeadline;
       });
-  }, [rfps, query, sort]);
+  }, [rfps, query, savedIds, savedOnly, sort]);
 
   return (
     <>
@@ -69,6 +89,9 @@ export default function RfpBrowser({ rfps }: { rfps: Rfp[] }) {
             </select>
           </label>
         </div>
+        <button type="button" className="btn" style={{ marginTop: 12 }} aria-pressed={savedOnly} onClick={() => setSavedOnly((current) => !current)}>
+          {savedOnly ? 'Showing saved RFPs' : 'Show saved RFPs'} ({savedIds.length})
+        </button>
         <p className="muted" aria-live="polite">
           Showing {visibleRfps.length} of {rfps.length} open RFPs.
         </p>
@@ -96,10 +119,16 @@ export default function RfpBrowser({ rfps }: { rfps: Rfp[] }) {
               <h2>{rfp.title || rfp.campaign}</h2>
               {rfp.campaign && <p className="muted">{rfp.campaign}</p>}
               <p>Budget: {(cents(rfp) / 100).toLocaleString(undefined, { style: 'currency', currency: 'USD' })}</p>
-              <p className="muted">Deadline: {formatDeadline(rfp.deadline)}</p>
-              <Link className="btn primary" href={'/advocate/rfps/' + (rfp.slug || rfp.id)}>
-                Review RFP
-              </Link>
+              <p className="muted">Deadline: {formatDeadline(rfp.deadline)}{rfp.deadline && (() => {
+                const days = Math.ceil((new Date(rfp.deadline).getTime() - Date.now()) / 86400000);
+                return days < 0 ? ' · Deadline passed' : days <= 7 ? ` · ${days === 0 ? 'Due today' : `Due in ${days} days`}` : '';
+              })()}</p>
+              <div className="actions">
+                <Link className="btn primary" href={'/advocate/rfps/' + (rfp.slug || rfp.id)}>Review RFP</Link>
+                <button type="button" className="btn" aria-pressed={savedIds.includes(String(rfp.id || rfp.slug || ''))} onClick={() => toggleSaved(rfp)}>
+                  {savedIds.includes(String(rfp.id || rfp.slug || '')) ? 'Saved' : 'Save RFP'}
+                </button>
+              </div>
             </article>
           ))}
         </div>

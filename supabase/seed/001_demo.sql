@@ -1,6 +1,6 @@
-insert into campaigns(slug,title,bill,description,goal_cents,raised_cents,status)
-values('hr-5602','Agricultural Right-to-Repair Act','H.R. 5602','Illustrative MVP campaign for federal advocacy around agricultural equipment repair access.',2000000,0,'PUBLISHED')
-on conflict(slug) do update set title=excluded.title,goal_cents=excluded.goal_cents,raised_cents=excluded.raised_cents,status=excluded.status;
+insert into campaigns(slug,title,bill,description,goal_cents,raised_cents,status,issue_areas)
+values('hr-5602','Agricultural Right-to-Repair Act','H.R. 5602','Illustrative MVP campaign for federal advocacy around agricultural equipment repair access.',2000000,0,'PUBLISHED',array['Agriculture & food systems'])
+on conflict(slug) do update set title=excluded.title,goal_cents=excluded.goal_cents,raised_cents=excluded.raised_cents,status=excluded.status,issue_areas=excluded.issue_areas;
 insert into campaign_milestones(campaign_id,name,amount_cents,sequence) select id,'Gate 1 · Policy memo / legal analysis',500000,1 from campaigns where slug='hr-5602' and not exists(select 1 from campaign_milestones m where m.campaign_id=campaigns.id and m.sequence=1);
 insert into campaign_milestones(campaign_id,name,amount_cents,sequence) select id,'Gate 2 · Statutory redline',1000000,2 from campaigns where slug='hr-5602' and not exists(select 1 from campaign_milestones m where m.campaign_id=campaigns.id and m.sequence=2);
 insert into campaign_milestones(campaign_id,name,amount_cents,sequence) select id,'Gate 3 · Hearing / markup testimony / whip',500000,3 from campaigns where slug='hr-5602' and not exists(select 1 from campaign_milestones m where m.campaign_id=campaigns.id and m.sequence=3);

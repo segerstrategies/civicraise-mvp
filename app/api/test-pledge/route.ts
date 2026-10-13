@@ -1,7 +1,8 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase-server';
 
-const allowedPledgeCents = new Set([99, 500, 2000, 10000]);
+const minimumPledgeCents = 99;
+const maximumPledgeCents = 1_000_000;
 
 export async function POST(req: Request) {
   const body = await req.json().catch(() => ({}));
@@ -9,9 +10,9 @@ export async function POST(req: Request) {
   const amountCents = Math.round(amount * 100);
   const campaignId = typeof body.campaignId === 'string' ? body.campaignId : '';
 
-  if (!campaignId || !Number.isFinite(amount) || !allowedPledgeCents.has(amountCents)) {
+  if (!campaignId || !Number.isFinite(amount) || amountCents < minimumPledgeCents || amountCents > maximumPledgeCents) {
     return NextResponse.json(
-      { message: 'Choose one of the available test pledge amounts.' },
+      { message: 'Choose a test pledge amount between $0.99 and $10,000.' },
       { status: 400 }
     );
   }
