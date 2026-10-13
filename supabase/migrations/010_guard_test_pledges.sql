@@ -48,7 +48,7 @@ begin
 
   update public.campaigns
   set raised_cents = v_raised,
-      status = case when v_raised >= v_goal then 'FUNDED' else 'FUNDING' end
+      status = case when v_raised >= v_goal then 'FUNDED'::public.campaign_status else 'FUNDING'::public.campaign_status end
   where id = p_campaign_id;
 
   insert into public.ledger_entries(campaign_id, entry_type, amount_cents, reference_type)
