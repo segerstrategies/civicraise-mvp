@@ -28,10 +28,70 @@ insert into public.advocate_profiles (id, firm_name, verification_status) values
   ('00000000-0000-0000-0000-000000000003', 'Test Advocate One', 'verified'),
   ('00000000-0000-0000-0000-000000000004', 'Test Advocate Two', 'verified');
 
+insert into public.campaigns (id, slug, title, status, goal_cents) values
+  ('00000000-0000-0000-0000-000000000015', 'test-backer-deliverable', 'Backer review policy test', 'BACKER_REVIEW', 10000);
+
+insert into public.rfps (id, slug, campaign_id, title, budget_cents, status)
+values ('00000000-0000-0000-0000-000000000022', 'test-backer-deliverable-rfp',
+        '00000000-0000-0000-0000-000000000015', 'Backer review RFP', 10000, 'AWARDED');
+
+insert into public.contracts (id, rfp_id, advocate_id, status)
+values ('00000000-0000-0000-0000-000000000041',
+        '00000000-0000-0000-0000-000000000022',
+        '00000000-0000-0000-0000-000000000003',
+        'ACTIVE');
+
+insert into public.campaign_milestones (id, campaign_id, name, amount_cents, sequence)
+values ('00000000-0000-0000-0000-000000000050',
+        '00000000-0000-0000-0000-000000000015',
+        'Backer review milestone', 10000, 1);
+
+insert into public.deliverables (id, contract_id, milestone_id, description, status)
+values ('00000000-0000-0000-0000-000000000060',
+        '00000000-0000-0000-0000-000000000041',
+        '00000000-0000-0000-0000-000000000050',
+        'Submitted work for the backer review policy test.', 'SUBMITTED');
+
+insert into public.pledges (campaign_id, user_id, amount_cents)
+values ('00000000-0000-0000-0000-000000000015',
+        '00000000-0000-0000-0000-000000000002', 500);
+
 insert into public.bids (id, rfp_id, advocate_id, amount_cents, proposal, status) values
   ('00000000-0000-0000-0000-000000000030', '00000000-0000-0000-0000-000000000020', '00000000-0000-0000-0000-000000000003', 5000, 'Winning test bid', 'SUBMITTED'),
   ('00000000-0000-0000-0000-000000000031', '00000000-0000-0000-0000-000000000020', '00000000-0000-0000-0000-000000000004', 6000, 'Other test bid', 'SUBMITTED'),
   ('00000000-0000-0000-0000-000000000032', '00000000-0000-0000-0000-000000000021', '00000000-0000-0000-0000-000000000003', 5000, 'Rollback test bid', 'SUBMITTED');
+
+-- Campaign backers can read submitted deliverables through RLS.
+select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-000000000002', true);
+set local role authenticated;
+do $body$
+declare visible_count integer;
+begin
+  select count(*) into visible_count
+  from public.deliverables
+  where id = '00000000-0000-0000-0000-000000000060';
+  if visible_count <> 1 then
+    raise exception 'Campaign backer should be able to read the submitted deliverable';
+  end if;
+end
+$body$;
+reset role;
+
+-- A non-backer who is not a participant cannot read the same deliverable.
+select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-000000000004', true);
+set local role authenticated;
+do $body$
+declare visible_count integer;
+begin
+  select count(*) into visible_count
+  from public.deliverables
+  where id = '00000000-0000-0000-0000-000000000060';
+  if visible_count <> 0 then
+    raise exception 'Non-backer should not be able to read the deliverable';
+  end if;
+end
+$body$;
+reset role;
 
 -- Force a contract insert failure in the second award scenario. The RPC must
 -- roll back every preceding status update while preserving this existing row.
