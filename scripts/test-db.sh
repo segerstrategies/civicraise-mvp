@@ -19,3 +19,4 @@ for migration in supabase/migrations/*.sql; do
 done
 
 psql "$DATABASE_URL" --set ON_ERROR_STOP=1 --file supabase/tests/admin_workflow.sql
+psql "$DATABASE_URL" --set ON_ERROR_STOP=1 --file supabase/tests/test_pledges.sql
