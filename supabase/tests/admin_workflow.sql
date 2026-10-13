@@ -64,7 +64,7 @@ insert into public.bids (id, rfp_id, advocate_id, amount_cents, proposal, status
 -- Campaign backers can read submitted deliverables through RLS.
 select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-000000000002', true);
 set local role authenticated;
-do $
+do $body$
 declare visible_count integer;
 begin
   select count(*) into visible_count
@@ -74,13 +74,13 @@ begin
     raise exception 'Campaign backer should be able to read the submitted deliverable';
   end if;
 end
-$;
+$body$;
 reset role;
 
 -- A non-backer who is not a participant cannot read the same deliverable.
 select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-000000000004', true);
 set local role authenticated;
-do $
+do $body$
 declare visible_count integer;
 begin
   select count(*) into visible_count
@@ -90,7 +90,7 @@ begin
     raise exception 'Non-backer should not be able to read the deliverable';
   end if;
 end
-$;
+$body$;
 reset role;
 
 -- Force a contract insert failure in the second award scenario. The RPC must
