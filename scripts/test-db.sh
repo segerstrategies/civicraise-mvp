@@ -18,4 +18,7 @@ for migration in supabase/migrations/*.sql; do
   psql "$DATABASE_URL" --set ON_ERROR_STOP=1 --file "$migration"
 done
 
+# Supabase grants table access separately from row-level policies.
+psql "$DATABASE_URL" --set ON_ERROR_STOP=1 --command "grant select on public.deliverables to authenticated;"
+
 psql "$DATABASE_URL" --set ON_ERROR_STOP=1 --file supabase/tests/admin_workflow.sql
