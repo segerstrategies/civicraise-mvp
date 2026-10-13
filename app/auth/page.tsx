@@ -26,7 +26,13 @@ export default function Auth() {
 
       const result = mode === 'signin'
         ? await supabase.auth.signInWithPassword({ email, password })
-        : await supabase.auth.signUp({ email, password });
+        : await supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            emailRedirectTo: `${location.origin}/auth/callback`,
+          },
+        });
 
       if (result.error) {
         setMessage(result.error.message);
@@ -34,11 +40,33 @@ export default function Auth() {
       }
 
       if (mode === 'signin') {
-        location.href = '/dashboard';
+        const userId = result.data.user?.id;
+        if (!userId) {
+          setMessage('Sign-in succeeded, but CivicRaise could not load your account. Try again.');
+          return;
+        }
+
+        const { data: profile, error: profileError } = await supabase
+          .from('profiles')
+          .select('onboarding_completed_at')
+          .eq('id', userId)
+          .maybeSingle();
+
+        if (profileError) {
+          setMessage(profileError.message);
+          return;
+        }
+
+        location.href = profile?.onboarding_completed_at ? '/dashboard' : '/onboarding';
         return;
       }
 
-      setMessage('Account created. Check your email if confirmation is enabled.');
+      if (result.data.session) {
+        location.href = '/onboarding';
+        return;
+      }
+
+      setMessage('Account created. Check your email to confirm your account, then you can finish onboarding.');
     } catch {
       setMessage('Unable to reach CivicRaise. Check your connection and try again.');
     } finally {

@@ -103,6 +103,7 @@ export default function Profile() {
     <>
       <div className="eyebrow">PROFILE</div>
       <h1>Your profile</h1>
+      <p className="muted">Update your interests, location, and contact details in <a href="/onboarding">onboarding preferences</a>.</p>
       <form className="card form narrow" onSubmit={save}>
         <label>
           Full name
