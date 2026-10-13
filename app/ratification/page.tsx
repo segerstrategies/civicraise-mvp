@@ -4,6 +4,64 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { createClient } from '@/lib/supabase-browser';
 
+function RatificationDemo() {
+  const [votesRecorded, setVotesRecorded] = useState(false);
+  const [finalized, setFinalized] = useState(false);
+
+  const totalPledged = 10_000;
+  const yes = votesRecorded ? 6_800 : 0;
+  const no = votesRecorded ? 1_200 : 0;
+  const participating = yes + no;
+  const quorumMet = participating >= totalPledged * 0.6;
+  const approvalMet = participating > 0 && yes / participating >= 0.85;
+  const approved = quorumMet && approvalMet;
+
+  return (
+    <>
+      <div className="eyebrow">BACKER REVIEW · DEMO</div>
+      <h1>Ratification walkthrough</h1>
+      <p className="muted">
+        This browser-only demo uses sample pledges and votes. It does not save anything to CivicRaise.
+      </p>
+
+      <section className="card">
+        <div className="eyebrow">SAMPLE OPEN BALLOT</div>
+        <h2>Agricultural Right-to-Repair Act: Demo Campaign</h2>
+        <p>Quorum: 60% of pledged dollars · Approval: 85% of participating dollars</p>
+        <p>Total pledged: <strong>$100.00</strong></p>
+        <p>Sample backers: $68 approve · $12 reject · $20 do not vote</p>
+
+        <div className="actions">
+          <button className="btn" disabled={votesRecorded || finalized} onClick={() => setVotesRecorded(true)}>
+            {votesRecorded ? 'Sample votes recorded' : 'Record sample votes'}
+          </button>
+          <button className="btn primary" disabled={!votesRecorded || finalized} onClick={() => setFinalized(true)}>
+            Finalize demo ballot
+          </button>
+          <button className="btn" onClick={() => { setVotesRecorded(false); setFinalized(false); }}>
+            Reset demo
+          </button>
+        </div>
+
+        {votesRecorded && !finalized && (
+          <div className="notice" role="status">
+            Votes recorded: $80.00 participating, $68.00 approve, $12.00 reject.
+          </div>
+        )}
+
+        {finalized && (
+          <div className="notice" role="status">
+            <strong>Demo result: {approved ? 'RATIFIED' : 'REJECTED'}</strong>
+            <p>Quorum: {participating / totalPledged * 100}% (required 60%) · Approval: {yes / participating * 100}% (required 85%).</p>
+            <p>Demo campaign result: {approved ? 'DISBURSEMENT_PENDING' : 'DISPUTED'}.</p>
+            <p className="muted">In a real ballot, finalization also writes ledger and audit records. This demo only shows the outcome.</p>
+          </div>
+        )}
+      </section>
+    </>
+  );
+}
+
 type VoteRecord = {
   approve: boolean;
   pledgedCents: number;
@@ -22,11 +80,17 @@ export default function Ratification() {
   const [loading, setLoading] = useState(true);
   const [busyBallotId, setBusyBallotId] = useState('');
   const [busyVote, setBusyVote] = useState<boolean | null>(null);
+  const [demoMode, setDemoMode] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
 
     async function loadBallots() {
+      if (new URLSearchParams(window.location.search).get('demo') === 'ratification') {
+        setDemoMode(true);
+        return;
+      }
+
       const supabase = createClient();
       if (!supabase) {
         setMessage('Supabase is not configured.');
@@ -115,6 +179,8 @@ export default function Ratification() {
       cancelled = true;
     };
   }, []);
+
+  if (demoMode) return <RatificationDemo />;
 
   async function vote(ballotId: string, approve: boolean) {
     setBusyBallotId(ballotId);
