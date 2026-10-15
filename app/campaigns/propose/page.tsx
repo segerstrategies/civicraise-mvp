@@ -27,6 +27,17 @@ export default function ProposeCampaignPage() {
 
   useEffect(() => {
     let cancelled = false;
+    const params = new URLSearchParams(window.location.search);
+    const billFromFeed = params.get('bill');
+    const titleFromFeed = params.get('title');
+    const sourceFromFeed = params.get('source');
+    const objectiveFromFeed = params.get('objective');
+    const areasFromFeed = (params.get('issue_areas') || '').split('|').filter((area) => issueAreas.includes(area));
+    if (billFromFeed) setBill(billFromFeed.slice(0, 40).toUpperCase());
+    if (titleFromFeed) setTitle(`Campaign for: ${titleFromFeed}`.slice(0, 180));
+    if (sourceFromFeed && /^https:\/\//i.test(sourceFromFeed)) setSourceUrl(sourceFromFeed.slice(0, 2000));
+    if (objectiveFromFeed) setObjective(`Proposed public objective: ${objectiveFromFeed}`.slice(0, 5000));
+    if (areasFromFeed.length) setSelectedAreas(Array.from(new Set(areasFromFeed)));
     async function load() {
       const supabase = createClient();
       if (!supabase) {
