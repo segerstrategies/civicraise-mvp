@@ -35,16 +35,16 @@ begin
     perform public.record_test_pledge(
       '00000000-0000-0000-0000-000000000110',
       '00000000-0000-0000-0000-000000000101',
-      5000,
-      'TEST-PLEDGE-UNSUPPORTED-AMOUNT'
+      50,
+      'TEST-PLEDGE-BELOW-MINIMUM'
     );
     raise exception 'TEST_EXPECTED_REJECTION';
   exception
     when others then
       if sqlerrm = 'TEST_EXPECTED_REJECTION' then
-        raise exception 'Unsupported test pledge amount was accepted';
+        raise exception 'Below-minimum test pledge amount was accepted';
       end if;
-      if sqlerrm not like 'Choose one of the available test pledge amounts.%' then
+      if sqlerrm not like 'Choose a test pledge between $0.99 and $10,000.%' then
         raise;
       end if;
   end;
