@@ -96,8 +96,6 @@ drop policy if exists "event rsvps self manage" on public.campaign_event_rsvps;
 create policy "event rsvps self manage" on public.campaign_event_rsvps
   for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
 drop policy if exists "event rsvps admin read" on public.campaign_event_rsvps;
-create policy "event rsvps admin read" on public.campaign_event_rsvps
-  for select using (public.is_admin());
 
 -- Only aggregate counts are exposed; attendee identities remain private.
 create or replace function public.get_campaign_event_rsvp_counts(p_event_ids uuid[])
