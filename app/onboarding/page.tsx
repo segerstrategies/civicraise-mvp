@@ -61,6 +61,8 @@ export default function Onboarding() {
   const [form, setForm] = useState<ProfileForm>(emptyForm);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [locating, setLocating] = useState(false);
+  const [locationMessage, setLocationMessage] = useState('');
   const [message, setMessage] = useState('');
   const [messageIsError, setMessageIsError] = useState(false);
 
@@ -131,6 +133,48 @@ export default function Onboarding() {
         ? current.interestAreas.filter((selected) => selected !== area)
         : [...current.interestAreas, area],
     }));
+  }
+
+  function useMyLocation() {
+    if (!navigator.geolocation) {
+      setLocationMessage('Location is not available in this browser. Enter your location below.');
+      return;
+    }
+
+    setLocating(true);
+    setLocationMessage('Waiting for location permission…');
+    navigator.geolocation.getCurrentPosition(async ({ coords }) => {
+      setLocationMessage('Looking up your city and ZIP…');
+      try {
+        const response = await fetch('/api/geocode/reverse', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ latitude: coords.latitude, longitude: coords.longitude }),
+          cache: 'no-store',
+        });
+        const result = await response.json().catch(() => ({}));
+        if (!response.ok) throw new Error(result.message || 'Could not look up this location. Enter it manually.');
+
+        setForm((current) => ({
+          ...current,
+          city: result.city || current.city,
+          state: result.state || current.state,
+          postalCode: result.postalCode || current.postalCode,
+        }));
+        setLocationMessage(result.city || result.state
+          ? 'Location added to the form. Review it before saving.'
+          : 'We could not find a city or state here. Enter your location manually.');
+      } catch (error) {
+        setLocationMessage(error instanceof Error ? error.message : 'Could not look up this location. Enter it manually.');
+      } finally {
+        setLocating(false);
+      }
+    }, (error) => {
+      setLocationMessage(error.code === error.PERMISSION_DENIED
+        ? 'Location permission was not granted. You can enter your location manually.'
+        : 'Could not get your location. Check your device settings or enter it manually.');
+      setLocating(false);
+    }, { enableHighAccuracy: false, maximumAge: 300000, timeout: 15000 });
   }
 
   async function save(event: FormEvent<HTMLFormElement>) {
@@ -222,6 +266,14 @@ export default function Onboarding() {
 
         <fieldset className="onboarding-section">
           <legend>Where are you located? <span className="form-help">Optional</span></legend>
+          <div className="location-lookup">
+            <button className="btn" type="button" onClick={useMyLocation} disabled={locating}>
+              {locating ? 'Finding location…' : 'Use my location'}
+            </button>
+            <span className="form-help">Your browser will ask for permission. If you allow it, CivicRaise sends your coordinates to Google Maps to find your city, state, and ZIP. They are not saved until you choose “Save and continue.”</span>
+            <span className="form-help location-attribution">Location lookup by Google Maps.</span>
+            {locationMessage && <span className="form-help" role="status" aria-live="polite">{locationMessage}</span>}
+          </div>
           <div className="location-fields">
             <label>
               City
