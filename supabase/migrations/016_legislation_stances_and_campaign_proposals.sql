@@ -1,5 +1,66 @@
 -- Private, user-controlled positions on bills, plus a reviewed intake path for
 -- proposed campaigns. Individual political positions are never admin-readable.
+-- Keep the public legislation catalog independent from campaign inventory so
+-- discovery can create demand for campaigns that do not exist yet.
+create table if not exists public.legislation_items (
+  bill_code text primary key check (bill_code = upper(btrim(bill_code)) and length(bill_code) between 1 and 40),
+  title text not null check (length(btrim(title)) between 5 and 500),
+  summary text not null check (length(btrim(summary)) between 10 and 3000),
+  issue_areas text[] not null default '{}' check (cardinality(issue_areas) between 1 and 13),
+  source_url text not null check (source_url like 'https://www.congress.gov/%' or source_url like 'https://congress.gov/%'),
+  bill_status text not null default 'Introduced',
+  latest_action text,
+  verified_at date not null default current_date,
+  published boolean not null default false,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create index if not exists legislation_items_published_idx
+  on public.legislation_items (published, bill_code);
+create index if not exists legislation_items_issue_areas_idx
+  on public.legislation_items using gin (issue_areas);
+
+alter table public.legislation_items enable row level security;
+create policy "anyone reads published legislation"
+  on public.legislation_items for select
+  using (published or public.is_admin());
+create policy "admins manage legislation catalog"
+  on public.legislation_items for all
+  using (public.is_admin())
+  with check (public.is_admin());
+grant select on public.legislation_items to anon, authenticated;
+grant insert, update, delete on public.legislation_items to authenticated;
+
+insert into public.legislation_items
+  (bill_code, title, summary, issue_areas, source_url, bill_status, latest_action, verified_at, published)
+values
+  ('H.R. 4400', 'Farm and Ranch Stress Assistance Network reauthorization',
+   'Would reauthorize the Farm and Ranch Stress Assistance Network, which supports mental health services for farmers and ranchers.',
+   array['Agriculture & food systems', 'Health care'],
+   'https://www.congress.gov/bill/119th-congress/house-bill/4400/titles', 'Introduced',
+   'Introduced July 15, 2025; referred to the House Committee on Agriculture.', '2026-10-15', true),
+  ('S. 231', 'WEATHER Act of 2025',
+   'Would authorize changes to federal crop insurance to address extreme agricultural threats and economic resilience.',
+   array['Agriculture & food systems', 'Climate & energy'],
+   'https://www.congress.gov/bill/119th-congress/senate-bill/231/text', 'Introduced',
+   'Introduced January 23, 2025; referred to the Senate Committee on Agriculture, Nutrition, and Forestry.', '2026-10-15', true),
+  ('H.R. 6100', 'Health ACCESS Act',
+   'Would amend the Social Security Act to lower barriers and increase patient access to health care.',
+   array['Health care'],
+   'https://www.congress.gov/bill/119th-congress/house-bill/6100/titles', 'Introduced',
+   'Introduced November 18, 2025; referred to the House Committees on Energy and Commerce and Ways and Means.', '2026-10-15', true)
+on conflict (bill_code) do update set
+  title = excluded.title,
+  summary = excluded.summary,
+  issue_areas = excluded.issue_areas,
+  source_url = excluded.source_url,
+  bill_status = excluded.bill_status,
+  latest_action = excluded.latest_action,
+  verified_at = excluded.verified_at,
+  published = excluded.published,
+  updated_at = now();
+
 create table if not exists public.legislation_stances (
   user_id uuid not null references public.profiles(id) on delete cascade,
   bill_code text not null check (bill_code = upper(btrim(bill_code)) and length(bill_code) between 1 and 40),
