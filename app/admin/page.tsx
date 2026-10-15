@@ -26,6 +26,8 @@ export default function Admin() {
   const [deliverables, setDeliverables] = useState<any[]>([]);
   const [advocates, setAdvocates] = useState<any[]>([]);
   const [auditEvents, setAuditEvents] = useState<any[]>([]);
+  const [campaignProposals, setCampaignProposals] = useState<any[]>([]);
+  const [reviewingProposalId, setReviewingProposalId] = useState('');
   const [milestones, setMilestones] = useState<any[]>([]);
   const [dueDateDrafts, setDueDateDrafts] = useState<Record<string, string>>({});
   const [savingMilestoneId, setSavingMilestoneId] = useState('');
@@ -153,14 +155,21 @@ export default function Admin() {
     setAdvocates(av || []);
 
     if (p?.role === 'admin') {
-      const { data: events } = await sb
-        .from('audit_events')
-        .select('id,event_type,entity_type,entity_id,payload,created_at')
-        .order('created_at', { ascending: false })
-        .limit(50);
+      const [{ data: events }, { data: proposals }] = await Promise.all([
+        sb.from('audit_events')
+          .select('id,event_type,entity_type,entity_id,payload,created_at')
+          .order('created_at', { ascending: false })
+          .limit(50),
+        sb.from('campaign_proposals')
+          .select('id,submitted_by,bill,title,objective,proposed_goal_cents,issue_areas,source_url,created_at')
+          .eq('status', 'SUBMITTED')
+          .order('created_at', { ascending: true }),
+      ]);
       setAuditEvents(events || []);
+      setCampaignProposals(proposals || []);
     } else {
       setAuditEvents([]);
+      setCampaignProposals([]);
     }
 
     if (availableCampaigns.length) {
@@ -224,6 +233,24 @@ export default function Admin() {
 
     const j = await r.json();
     setMsg(j.message || 'Advocate verification request completed.');
+    await load();
+  }
+
+  async function reviewCampaignProposal(id: string, decision: 'APPROVED' | 'DECLINED') {
+    const sb = createClient();
+    if (!sb || reviewingProposalId) return;
+    setReviewingProposalId(id);
+    const { data, error } = await sb.rpc('admin_review_campaign_proposal', {
+      p_proposal_id: id,
+      p_decision: decision,
+      p_note: null,
+    });
+    setReviewingProposalId('');
+    if (error) {
+      setMsg('Could not review the proposal. Apply the campaign intake migration first. ' + error.message);
+      return;
+    }
+    setMsg(data?.message || 'Campaign proposal review completed.');
     await load();
   }
 
@@ -301,6 +328,29 @@ export default function Admin() {
       <h1>Operations console</h1>
 
       {msg && <div className="notice">{msg}</div>}
+
+      <section className="card" style={{ marginBottom: 18 }}>
+        <h2>Campaign proposals</h2>
+        <p className="muted">Approve creates a DRAFT campaign for admin setup; it does not publish the campaign or open pledges.</p>
+        {campaignProposals.length === 0 ? <p className="muted">No proposals awaiting review.</p> : (
+          <div className="proposal-list">
+            {campaignProposals.map((proposal) => (
+              <article key={proposal.id}>
+                <div className="eyebrow">{proposal.bill || 'Bill not specified'} · Submitted {new Date(proposal.created_at).toLocaleDateString()}</div>
+                <h3>{proposal.title}</h3>
+                <p>{proposal.objective}</p>
+                <p className="muted">Proposed target: ${(Number(proposal.proposed_goal_cents || 0) / 100).toLocaleString()}</p>
+                <p className="muted">Issue areas: {(proposal.issue_areas || []).join(', ') || 'Not specified'}</p>
+                {proposal.source_url && <p><a href={proposal.source_url} target="_blank" rel="noreferrer">Open public source</a></p>}
+                <div className="actions">
+                  <button className="btn primary" disabled={Boolean(reviewingProposalId)} onClick={() => void reviewCampaignProposal(proposal.id, 'APPROVED')}>{reviewingProposalId === proposal.id ? 'Reviewing…' : 'Approve and create draft'}</button>
+                  <button className="btn" disabled={Boolean(reviewingProposalId)} onClick={() => void reviewCampaignProposal(proposal.id, 'DECLINED')}>Decline</button>
+                </div>
+              </article>
+            ))}
+          </div>
+        )}
+      </section>
 
       <div className="card" style={{ marginBottom: 18 }}>
         <label htmlFor="campaign-select">

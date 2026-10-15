@@ -50,12 +50,27 @@ export default function CampaignBrowser({ campaigns }: { campaigns: Campaign[] }
         if (!supabase) return;
         const { data: { user } } = await supabase.auth.getUser();
         if (!user || cancelled) return;
-        const { data } = await supabase
-          .from('profiles')
-          .select('interest_areas')
-          .eq('id', user.id)
-          .maybeSingle();
-        if (!cancelled) setInterestAreas(Array.isArray(data?.interest_areas) ? data.interest_areas : []);
+        const [{ data: profile }, { data: stances }] = await Promise.all([
+          supabase.from('profiles').select('interest_areas').eq('id', user.id).maybeSingle(),
+          supabase.from('legislation_stances').select('bill_code').eq('user_id', user.id),
+        ]);
+        if (cancelled) return;
+        const declaredAreas = Array.isArray(profile?.interest_areas) ? profile.interest_areas : [];
+        const billCodes = (stances || []).map((item: any) => item.bill_code).filter(Boolean);
+        if (billCodes.length) {
+          const { data: matchingLegislation } = await supabase
+            .from('legislation_items')
+            .select('issue_areas')
+            .in('bill_code', billCodes)
+            .eq('published', true);
+          if (cancelled) return;
+          const stanceAreas = (matchingLegislation || []).flatMap((item: any) =>
+            Array.isArray(item.issue_areas) ? item.issue_areas : []
+          );
+          setInterestAreas(Array.from(new Set([...declaredAreas, ...stanceAreas])));
+        } else {
+          setInterestAreas(declaredAreas);
+        }
       } catch {
         // Recommendations are optional and do not block the public campaign list.
       }
@@ -190,6 +205,8 @@ export default function CampaignBrowser({ campaigns }: { campaigns: Campaign[] }
           <button type="button" className={savedOnly ? 'btn primary' : 'btn'} onClick={() => setSavedOnly((current) => !current)}>
             {savedOnly ? 'Showing saved campaigns' : 'Show saved campaigns'} ({savedIds.length})
           </button>
+          <Link className="btn" href="/legislation">Support or oppose legislation</Link>
+          <Link className="btn" href="/campaigns/propose">Propose a campaign</Link>
         </div>
         <p className="muted" aria-live="polite">
           Showing {filteredCampaigns.length} of {campaigns.length} campaigns.
