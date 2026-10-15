@@ -59,9 +59,10 @@ export default function CampaignBrowser({ campaigns }: { campaigns: Campaign[] }
         const billCodes = (stances || []).map((item: any) => item.bill_code).filter(Boolean);
         if (billCodes.length) {
           const { data: matchingLegislation } = await supabase
-            .from('campaigns')
+            .from('legislation_items')
             .select('issue_areas')
-            .in('bill', billCodes);
+            .in('bill_code', billCodes)
+            .eq('published', true);
           if (cancelled) return;
           const stanceAreas = (matchingLegislation || []).flatMap((item: any) =>
             Array.isArray(item.issue_areas) ? item.issue_areas : []
