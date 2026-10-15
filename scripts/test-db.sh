@@ -23,3 +23,4 @@ psql "$DATABASE_URL" --set ON_ERROR_STOP=1 --command "grant select on all tables
 
 psql "$DATABASE_URL" --set ON_ERROR_STOP=1 --file supabase/tests/admin_workflow.sql
 psql "$DATABASE_URL" --set ON_ERROR_STOP=1 --file supabase/tests/test_pledges.sql
+psql "$DATABASE_URL" --set ON_ERROR_STOP=1 --file supabase/tests/campaign_engagement.sql

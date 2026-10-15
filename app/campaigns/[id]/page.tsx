@@ -199,6 +199,7 @@ export default function Campaign() {
           <div className="actions">
             <button type="button" className="btn" aria-pressed={saved} onClick={toggleSaved}>{saved ? 'Saved campaign' : 'Save campaign'}</button>
             <button type="button" className="btn" onClick={() => void shareCampaign()}>Share campaign</button>
+            <Link className="btn" href={`/campaigns/${campaign.slug || campaign.id}/updates`}>Updates and events</Link>
           </div>
           {Array.isArray(campaign.issue_areas) && campaign.issue_areas.length > 0 && (
             <p className="muted">Issue areas: {campaign.issue_areas.join(' · ')}</p>
