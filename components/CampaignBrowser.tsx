@@ -44,6 +44,17 @@ export default function CampaignBrowser({ campaigns }: { campaigns: Campaign[] }
       // Ignore invalid or unavailable local storage; campaign browsing still works.
     }
 
+    function syncSavedCampaigns(event: StorageEvent) {
+      if (event.key !== 'civicraise:saved-campaigns') return;
+      try {
+        const stored = JSON.parse(event.newValue || '[]');
+        setSavedIds(Array.isArray(stored) ? Array.from(new Set(stored.filter((value) => typeof value === 'string'))) : []);
+      } catch {
+        setSavedIds([]);
+      }
+    }
+    window.addEventListener('storage', syncSavedCampaigns);
+
     async function loadInterests() {
       try {
         const supabase = createClient();
@@ -77,7 +88,7 @@ export default function CampaignBrowser({ campaigns }: { campaigns: Campaign[] }
     }
 
     void loadInterests();
-    return () => { cancelled = true; };
+    return () => { cancelled = true; window.removeEventListener('storage', syncSavedCampaigns); };
   }, []);
 
   function toggleSaved(campaign: Campaign) {
@@ -127,6 +138,8 @@ export default function CampaignBrowser({ campaigns }: { campaigns: Campaign[] }
         campaign.title,
         campaign.bill,
         campaign.description,
+        ...(campaign.issue_areas || []),
+        campaign.status,
       ].filter(Boolean).join(' ').toLowerCase();
       const campaignId = String(campaign.id || campaign.slug || '');
       const matchesIssue = issueFilter === 'all' || (campaign.issue_areas || []).some((area) => area.toLowerCase() === issueFilter.toLowerCase());
@@ -146,17 +159,22 @@ export default function CampaignBrowser({ campaigns }: { campaigns: Campaign[] }
 
     return filtered.sort((a, b) => {
       if (sortOrder === 'newest') {
-        return (Date.parse(b.created_at || '') || 0) - (Date.parse(a.created_at || '') || 0);
+        return (Date.parse(b.created_at || '') || 0) - (Date.parse(a.created_at || '') || 0)
+          || String(a.title || '').localeCompare(String(b.title || ''));
       }
-      if (sortOrder === 'most-funded') return percentFunded(b) - percentFunded(a);
+      if (sortOrder === 'most-funded') return percentFunded(b) - percentFunded(a)
+        || String(a.title || '').localeCompare(String(b.title || ''));
       if (sortOrder === 'near-goal') {
         const remainingRatio = (campaign: Campaign) => {
           const goal = cents(campaign.goal_cents, campaign.goal);
           return goal > 0 ? Math.max(0, goal - cents(campaign.raised_cents, campaign.raised)) / goal : Number.POSITIVE_INFINITY;
         };
-        return remainingRatio(a) - remainingRatio(b);
+        return remainingRatio(a) - remainingRatio(b)
+          || String(a.title || '').localeCompare(String(b.title || ''));
       }
-      return interestScore(b) - interestScore(a) || percentFunded(b) - percentFunded(a);
+      return interestScore(b) - interestScore(a)
+        || percentFunded(b) - percentFunded(a)
+        || String(a.title || '').localeCompare(String(b.title || ''));
     });
   }, [campaigns, interestAreas, issueFilter, pledgeFilter, query, savedIds, savedOnly, sortOrder]);
 
@@ -202,26 +220,29 @@ export default function CampaignBrowser({ campaigns }: { campaigns: Campaign[] }
           </label>
         </div>
         <div className="actions" style={{ marginTop: 14 }}>
-          <button type="button" className={savedOnly ? 'btn primary' : 'btn'} onClick={() => setSavedOnly((current) => !current)}>
+          <button type="button" className={savedOnly ? 'btn primary' : 'btn'} aria-pressed={savedOnly} onClick={() => setSavedOnly((current) => !current)}>
             {savedOnly ? 'Showing saved campaigns' : 'Show saved campaigns'} ({savedIds.length})
           </button>
           <Link className="btn" href="/legislation">Support or oppose legislation</Link>
           <Link className="btn" href="/campaigns/propose">Propose a campaign</Link>
         </div>
-        <p className="muted" aria-live="polite">
-          Showing {filteredCampaigns.length} of {campaigns.length} campaigns.
+        <p className="muted" role="status" aria-live="polite">
+          Showing {filteredCampaigns.length} of {campaigns.length} campaigns{savedOnly ? ' · saved only' : ''}.
         </p>
+        {interestAreas.length === 0 && (
+          <p className="muted">Add issue interests in your <Link href="/profile">profile</Link> to personalize recommendations.</p>
+        )}
         {message && <p className="muted" role="status" aria-live="polite">{message}</p>}
       </div>
 
       {filteredCampaigns.length === 0 ? (
         <div className="card">
           <h2>No matching campaigns</h2>
-          <p className="muted">Try a different search or pledge status filter.</p>
+          <p className="muted">{savedOnly && savedIds.length === 0 ? 'You have not saved any campaigns yet.' : 'Try a different search, issue area, or pledge status filter.'}</p>
           <button
             type="button"
             className="btn"
-            onClick={() => { setQuery(''); setPledgeFilter('all'); setIssueFilter('all'); setSavedOnly(false); }}
+            onClick={() => { setQuery(''); setPledgeFilter('all'); setIssueFilter('all'); setSavedOnly(false); setSortOrder('recommended'); }}
           >
             Clear filters
           </button>
@@ -239,31 +260,33 @@ export default function CampaignBrowser({ campaigns }: { campaigns: Campaign[] }
 
             return (
               <article className="card" key={campaign.id || campaign.slug}>
-                <div className="eyebrow">{campaign.bill} · {String(campaign.status).toUpperCase()}</div>
-                <h2>{campaign.title}</h2>
+                <div className="eyebrow">{campaign.bill || 'Civic campaign'} · {String(campaign.status || 'STATUS UNAVAILABLE').toUpperCase()}</div>
+                <h2>{campaign.title || 'Untitled campaign'}</h2>
                 <p className="muted">{campaign.description}</p>
-                <p><strong>{raisedAmount}</strong> of {goalAmount}</p>
+                <p><strong>{raisedAmount}</strong>{goal > 0 ? <> of {goalAmount}</> : ' raised'}</p>
                 {goal > 0 && (
                   <p className="muted">{Math.round(progress)}% funded · {goalAmount === raisedAmount ? 'Goal reached' : (Math.max(0, goal - raised) / 100).toLocaleString(undefined, { style: 'currency', currency: 'USD' }) + ' to go'}</p>
                 )}
-                <div
-                  className="progress"
-                  role="progressbar"
-                  aria-label="Campaign funding progress"
-                  aria-valuemin={0}
-                  aria-valuemax={100}
-                  aria-valuenow={Math.round(progress)}
-                >
-                  <div style={{ width: progress + '%' }} />
-                </div>
+                {goal > 0 && (
+                  <div
+                    className="progress"
+                    role="progressbar"
+                    aria-label={`${campaign.title || 'Campaign'} funding progress`}
+                    aria-valuemin={0}
+                    aria-valuemax={100}
+                    aria-valuenow={Math.round(progress)}
+                  >
+                    <div style={{ width: progress + '%' }} />
+                  </div>
+                )}
                 <div className="actions">
                   <Link className="btn primary" href={'/campaigns/' + (campaign.slug || campaign.id)}>
                     View campaign
                   </Link>
-                  <button type="button" className="btn" aria-pressed={saved} onClick={() => toggleSaved(campaign)}>
+                  <button type="button" className="btn" aria-pressed={saved} aria-label={`${saved ? 'Remove' : 'Save'} ${campaign.title || 'campaign'}`} onClick={() => toggleSaved(campaign)}>
                     {saved ? 'Saved' : 'Save'}
                   </button>
-                  <button type="button" className="btn" onClick={() => void shareCampaign(campaign)}>
+                  <button type="button" className="btn" aria-label={`Share ${campaign.title || 'campaign'}`} onClick={() => void shareCampaign(campaign)}>
                     Share
                   </button>
                 </div>
