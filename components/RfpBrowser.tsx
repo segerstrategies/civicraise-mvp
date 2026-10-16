@@ -60,7 +60,11 @@ export default function RfpBrowser({ rfps }: { rfps: Rfp[] }) {
         setSavedIds([]);
       }
     }
-    readSaved(window.localStorage.getItem('civicraise:saved-rfps'));
+    try {
+      readSaved(window.localStorage.getItem('civicraise:saved-rfps'));
+    } catch {
+      setSavedIds([]);
+    }
     function syncSavedRfps(event: StorageEvent) {
       if (event.key === 'civicraise:saved-rfps') readSaved(event.newValue);
     }
