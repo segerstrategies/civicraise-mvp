@@ -31,6 +31,23 @@ function RatificationDemo() {
         <p>Total pledged: <strong>$100.00</strong></p>
         <p>Sample backers: $68 approve · $12 reject · $20 do not vote</p>
 
+        <section className="notice" aria-labelledby="demo-deliverable-title">
+          <div className="eyebrow">ILLUSTRATIVE SUBMISSION · MILESTONE 1 OF 3</div>
+          <h3 id="demo-deliverable-title">Policy analysis and bill review</h3>
+          <p>
+            The advocate compared the proposed Right-to-Repair language with current federal policy,
+            identified implementation questions, and prepared recommended revisions for staff review.
+          </p>
+          <p><strong>Submitted:</strong> October 10, 2026 · <strong>Review status:</strong> Awaiting backer ratification</p>
+          <h4>Review checklist</h4>
+          <ul>
+            <li>Does the work address the campaign&apos;s stated policy objective?</li>
+            <li>Are the analysis and recommendations clear enough for the next advocacy step?</li>
+            <li>Is any required work missing from this milestone?</li>
+          </ul>
+          <p className="muted">This sample illustrates the information a backer would review before voting. No document or payment is attached in this demo.</p>
+        </section>
+
         <div className="actions">
           <button className="btn" disabled={votesRecorded || finalized} onClick={() => setVotesRecorded(true)}>
             {votesRecorded ? 'Sample votes recorded' : 'Record sample votes'}
@@ -129,7 +146,7 @@ export default function Ratification() {
 
       const { data: ballotRows, error: ballotError } = await supabase
         .from('ratification_ballots')
-        .select('id,campaign_id,opened_at,quorum_percent,approval_percent,campaigns(title,bill)')
+        .select('id,campaign_id,deliverable_id,opened_at,quorum_percent,approval_percent,campaigns(title,bill),deliverables(id,description,status,submitted_at,campaign_milestones(name,amount_cents))')
         .in('campaign_id', campaignIds)
         .eq('status', 'OPEN')
         .order('opened_at', { ascending: false });
@@ -250,6 +267,10 @@ export default function Ratification() {
           {ballots.map((ballot) => {
             const currentVote = votes[ballot.id];
             const campaign = Array.isArray(ballot.campaigns) ? ballot.campaigns[0] : ballot.campaigns;
+            const deliverable = Array.isArray(ballot.deliverables) ? ballot.deliverables[0] : ballot.deliverables;
+            const milestone = Array.isArray(deliverable?.campaign_milestones)
+              ? deliverable.campaign_milestones[0]
+              : deliverable?.campaign_milestones;
 
             return (
               <section className="card" key={ballot.id}>
@@ -259,6 +280,22 @@ export default function Ratification() {
                   Quorum is {ballot.quorum_percent}% of pledged dollars, followed by{' '}
                   {ballot.approval_percent}% affirmative approval among participating dollars.
                 </p>
+                <div className="notice">
+                  <h3>{milestone?.name || 'Submitted campaign deliverable'}</h3>
+                  {deliverable ? (
+                    <>
+                      <p>{deliverable.description}</p>
+                      <p>
+                        <strong>Status:</strong> {String(deliverable.status || 'SUBMITTED').replace(/_/g, ' ')}
+                        {deliverable.submitted_at && <> · <strong>Submitted:</strong> {new Date(deliverable.submitted_at).toLocaleDateString()}</>}
+                      </p>
+                      {milestone?.amount_cents != null && <p><strong>Milestone amount:</strong> {formatMoney(Number(milestone.amount_cents))}</p>}
+                    </>
+                  ) : (
+                    <p className="muted">The work summary is not attached to this ballot. Review the campaign details before voting.</p>
+                  )}
+                  <p className="muted">Consider whether the submitted work meets the milestone described in the campaign.</p>
+                </div>
                 {currentVote && (
                   <div className="notice">
                     <p>
