@@ -252,7 +252,7 @@ export default function CampaignBrowser({ campaigns }: { campaigns: Campaign[] }
           {filteredCampaigns.map((campaign) => {
             const raised = cents(campaign.raised_cents, campaign.raised);
             const goal = cents(campaign.goal_cents, campaign.goal);
-            const progress = goal > 0 ? Math.min(100, raised / goal * 100) : 0;
+            const progress = goal > 0 ? Math.max(0, Math.min(100, raised / goal * 100)) : 0;
             const campaignId = String(campaign.id || campaign.slug || '');
             const saved = savedIds.includes(campaignId);
             const raisedAmount = (raised / 100).toLocaleString(undefined, { style: 'currency', currency: 'USD' });
@@ -265,7 +265,7 @@ export default function CampaignBrowser({ campaigns }: { campaigns: Campaign[] }
                 <p className="muted">{campaign.description}</p>
                 <p><strong>{raisedAmount}</strong>{goal > 0 ? <> of {goalAmount}</> : ' raised'}</p>
                 {goal > 0 && (
-                  <p className="muted">{Math.round(progress)}% funded · {goalAmount === raisedAmount ? 'Goal reached' : (Math.max(0, goal - raised) / 100).toLocaleString(undefined, { style: 'currency', currency: 'USD' }) + ' to go'}</p>
+                  <p className="muted">{Math.round(progress)}% funded · {raised >= goal ? 'Goal reached' : (Math.max(0, goal - raised) / 100).toLocaleString(undefined, { style: 'currency', currency: 'USD' }) + ' to go'}</p>
                 )}
                 {goal > 0 && (
                   <div
