@@ -21,12 +21,28 @@ function cents(rfp: Rfp) {
   return (Number(rfp.budget) || 0) * 100;
 }
 
+function parseDeadline(value?: string | null) {
+  if (!value) return null;
+  const time = new Date(value).getTime();
+  return Number.isFinite(time) ? time : null;
+}
+
 function formatDeadline(value?: string | null) {
+  const time = parseDeadline(value);
   if (!value) return 'No deadline announced';
-  const date = new Date(value);
-  return Number.isNaN(date.getTime())
+  return time === null
     ? 'Deadline unavailable'
-    : date.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+    : new Date(time).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+}
+
+function deadlineHint(value?: string | null) {
+  const time = parseDeadline(value);
+  if (time === null) return '';
+  const days = Math.ceil((time - Date.now()) / 86400000);
+  if (days < 0) return ' · Deadline passed';
+  if (days === 0) return ' · Due today';
+  if (days === 1) return ' · Due in 1 day';
+  return days <= 7 ? ` · Due in ${days} days` : '';
 }
 
 export default function RfpBrowser({ rfps }: { rfps: Rfp[] }) {
@@ -36,12 +52,24 @@ export default function RfpBrowser({ rfps }: { rfps: Rfp[] }) {
   const [savedOnly, setSavedOnly] = useState(false);
 
   useEffect(() => {
-    try {
-      const stored = JSON.parse(window.localStorage.getItem('civicraise:saved-rfps') || '[]');
-      if (Array.isArray(stored)) setSavedIds(stored.filter((value) => typeof value === 'string'));
-    } catch {
-      // RFP browsing does not depend on browser storage.
+    function readSaved(value: string | null) {
+      try {
+        const stored = JSON.parse(value || '[]');
+        setSavedIds(Array.isArray(stored) ? Array.from(new Set(stored.filter((item) => typeof item === 'string'))) : []);
+      } catch {
+        setSavedIds([]);
+      }
     }
+    try {
+      readSaved(window.localStorage.getItem('civicraise:saved-rfps'));
+    } catch {
+      setSavedIds([]);
+    }
+    function syncSavedRfps(event: StorageEvent) {
+      if (event.key === 'civicraise:saved-rfps') readSaved(event.newValue);
+    }
+    window.addEventListener('storage', syncSavedRfps);
+    return () => window.removeEventListener('storage', syncSavedRfps);
   }, []);
 
   function toggleSaved(rfp: Rfp) {
@@ -61,9 +89,9 @@ export default function RfpBrowser({ rfps }: { rfps: Rfp[] }) {
         if (sort === 'budget-low') return cents(left) - cents(right);
         if (sort === 'budget-high') return cents(right) - cents(left);
 
-        const leftDeadline = left.deadline ? new Date(left.deadline).getTime() : Number.POSITIVE_INFINITY;
-        const rightDeadline = right.deadline ? new Date(right.deadline).getTime() : Number.POSITIVE_INFINITY;
-        return leftDeadline - rightDeadline;
+        const leftDeadline = parseDeadline(left.deadline) ?? Number.POSITIVE_INFINITY;
+        const rightDeadline = parseDeadline(right.deadline) ?? Number.POSITIVE_INFINITY;
+        return leftDeadline - rightDeadline || String(left.title || left.campaign || '').localeCompare(String(right.title || right.campaign || ''));
       });
   }, [rfps, query, savedIds, savedOnly, sort]);
 
@@ -92,8 +120,8 @@ export default function RfpBrowser({ rfps }: { rfps: Rfp[] }) {
         <button type="button" className="btn" style={{ marginTop: 12 }} aria-pressed={savedOnly} onClick={() => setSavedOnly((current) => !current)}>
           {savedOnly ? 'Showing saved RFPs' : 'Show saved RFPs'} ({savedIds.length})
         </button>
-        <p className="muted" aria-live="polite">
-          Showing {visibleRfps.length} of {rfps.length} open RFPs.
+        <p className="muted" role="status" aria-live="polite">
+          Showing {visibleRfps.length} of {rfps.length} open RFPs{savedOnly ? ' · saved only' : ''}.
         </p>
       </div>
 
@@ -103,11 +131,13 @@ export default function RfpBrowser({ rfps }: { rfps: Rfp[] }) {
           <p className="muted">
             {rfps.length === 0
               ? 'Check back when campaigns publish new advocacy opportunities.'
-              : 'Try changing your search.'}
+              : savedOnly && savedIds.length === 0
+                ? 'You have not saved any RFPs yet.'
+                : 'Try changing your search or sort order.'}
           </p>
-          {query && (
-            <button type="button" className="btn" onClick={() => setQuery('')}>
-              Clear search
+          {(query || savedOnly) && (
+            <button type="button" className="btn" onClick={() => { setQuery(''); setSavedOnly(false); setSort('deadline'); }}>
+              Clear filters
             </button>
           )}
         </div>
@@ -116,15 +146,14 @@ export default function RfpBrowser({ rfps }: { rfps: Rfp[] }) {
           {visibleRfps.map((rfp) => (
             <article className="card" key={rfp.id || rfp.slug}>
               <div className="eyebrow">OPEN RFP</div>
-              <h2>{rfp.title || rfp.campaign}</h2>
+              <h2>{rfp.title || rfp.campaign || 'Untitled RFP'}</h2>
               {rfp.campaign && <p className="muted">{rfp.campaign}</p>}
-              <p>Budget: {(cents(rfp) / 100).toLocaleString(undefined, { style: 'currency', currency: 'USD' })}</p>
-              <p className="muted">Deadline: {formatDeadline(rfp.deadline)}{rfp.deadline && (() => {
-                const days = Math.ceil((new Date(rfp.deadline).getTime() - Date.now()) / 86400000);
-                return days < 0 ? ' · Deadline passed' : days <= 7 ? ` · ${days === 0 ? 'Due today' : `Due in ${days} days`}` : '';
-              })()}</p>
+              <p>Budget: {rfp.budget_cents == null && rfp.budget == null
+                ? 'Not announced'
+                : (cents(rfp) / 100).toLocaleString(undefined, { style: 'currency', currency: 'USD' })}</p>
+              <p className="muted">Deadline: {formatDeadline(rfp.deadline)}{deadlineHint(rfp.deadline)}</p>
               <div className="actions">
-                <Link className="btn primary" href={'/advocate/rfps/' + (rfp.slug || rfp.id)}>Review RFP</Link>
+                <Link className="btn primary" href={'/advocate/rfps/' + (rfp.slug || rfp.id)} aria-label={`Review ${rfp.title || rfp.campaign || 'RFP'}`}>Review RFP</Link>
                 <button type="button" className="btn" aria-pressed={savedIds.includes(String(rfp.id || rfp.slug || ''))} onClick={() => toggleSaved(rfp)}>
                   {savedIds.includes(String(rfp.id || rfp.slug || '')) ? 'Saved' : 'Save RFP'}
                 </button>
