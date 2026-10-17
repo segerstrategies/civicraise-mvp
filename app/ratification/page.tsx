@@ -62,7 +62,7 @@ function RatificationDemo() {
 
         {votesRecorded && !finalized && (
           <div className="notice" role="status">
-            Votes recorded: 2 of 3 sample backers. Pledge-weighted totals: $80.00 participating ($68.00 approve · $12.00 reject).
+            Votes recorded: 2 of 3 sample backers (1 approve · 1 reject).
           </div>
         )}
 
