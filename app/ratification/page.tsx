@@ -29,7 +29,7 @@ function RatificationDemo() {
         <h2>Agricultural Right-to-Repair Act: Demo Campaign</h2>
         <p>Quorum: 60% of pledged dollars · Approval: 85% of participating dollars</p>
         <p>Total pledged: <strong>$100.00</strong></p>
-        <p>Sample backers: $68 approve · $12 reject · $20 do not vote</p>
+        <p>Three sample backers: 1 approves · 1 rejects · 1 abstains</p>
 
         <section className="notice" aria-labelledby="demo-deliverable-title">
           <div className="eyebrow">ILLUSTRATIVE SUBMISSION · MILESTONE 1 OF 3</div>
@@ -62,7 +62,7 @@ function RatificationDemo() {
 
         {votesRecorded && !finalized && (
           <div className="notice" role="status">
-            Votes recorded: $80.00 participating, $68.00 approve, $12.00 reject.
+            Votes recorded: 2 of 3 sample backers. Pledge-weighted totals: $80.00 participating ($68.00 approve · $12.00 reject).
           </div>
         )}
 
