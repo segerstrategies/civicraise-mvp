@@ -260,7 +260,11 @@ export default function Ratification() {
       ) : ballots.length === 0 ? (
         <div className="card">
           <h2>Review completed advocacy work</h2>
-          <p className="muted">No open ballots are available for campaigns you backed.</p>
+          <p className="muted">No open ballots are available for campaigns you backed. Open ballots appear when eligible campaign work is submitted for backer review.</p>
+          <div className="actions">
+            <Link className="btn primary" href="/campaigns">Explore campaigns</Link>
+            <Link className="btn" href="/ratification?demo=ratification">See how ratification works</Link>
+          </div>
         </div>
       ) : (
         <div className="grid">
