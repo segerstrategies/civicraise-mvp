@@ -62,7 +62,7 @@ function RatificationDemo() {
 
         {votesRecorded && !finalized && (
           <div className="notice" role="status">
-            Votes recorded: $80.00 participating, $68.00 approve, $12.00 reject.
+            Pledge-weighted participation: $80.00 ($68.00 approve · $12.00 reject).
           </div>
         )}
 
