@@ -289,7 +289,6 @@ export default function LobbyistDashboard() {
                       Deadline: {formatDate(rfp.deadline)} · {deadlineLabel(rfp.deadline)}
                     </p>
                     <p className="muted">Budget: {formatMoney(rfp.budget_cents)}</p>
-                    <p className="muted">{deadlineLabel(rfp.deadline)}</p>
                   </div>
                 ))}
                 {openRfpCount > 5 && (
