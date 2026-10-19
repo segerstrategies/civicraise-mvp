@@ -7,6 +7,7 @@ import { createClient } from '@/lib/supabase-browser';
 export default function Dashboard() {
   const [pledges, setPledges] = useState<any[]>([]);
   const [email, setEmail] = useState('');
+  const [interestAreas, setInterestAreas] = useState<string[]>([]);
   const [message, setMessage] = useState('');
   const [pendingReviews, setPendingReviews] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
@@ -37,13 +38,25 @@ export default function Dashboard() {
         setSignedIn(true);
         setEmail(user.email ?? '');
 
-        const { data: pledgeRows, error: pledgeError } = await supabase
-          .from('pledges')
-          .select('id,amount_cents,created_at,campaign_id,campaigns(title,bill)')
-          .eq('user_id', user.id)
-          .order('created_at', { ascending: false });
+        const [{ data: pledgeRows, error: pledgeError }, { data: profile }] = await Promise.all([
+          supabase
+            .from('pledges')
+            .select('id,amount_cents,created_at,campaign_id,campaigns(title,bill)')
+            .eq('user_id', user.id)
+            .order('created_at', { ascending: false }),
+          supabase
+            .from('profiles')
+            .select('interest_areas')
+            .eq('id', user.id)
+            .maybeSingle(),
+        ]);
 
         if (cancelled) return;
+        setInterestAreas(
+          Array.isArray(profile?.interest_areas)
+            ? profile.interest_areas.filter((area: unknown): area is string => typeof area === 'string')
+            : []
+        );
         if (pledgeError) {
           setMessage(pledgeError.message);
           return;
@@ -158,6 +171,21 @@ export default function Dashboard() {
           )}
         </div>
       </div>
+
+      <section className="card" style={{ marginTop: 18 }}>
+        <h2>Your issue interests</h2>
+        {interestAreas.length ? (
+          <div className="issue-tags" aria-label="Your selected issue interests">
+            {interestAreas.map((area) => <span key={area}>{area}</span>)}
+          </div>
+        ) : (
+          <p className="muted">Choose issue areas to personalize your legislation feed and campaign recommendations.</p>
+        )}
+        <div className="actions">
+          <Link href="/onboarding" className="btn">{interestAreas.length ? 'Update interests' : 'Choose interests'}</Link>
+          <Link href="/legislation" className="btn">Explore legislation</Link>
+        </div>
+      </section>
 
       <div className="card" style={{ marginTop: 18 }}>
         <h2>Recent activity</h2>
