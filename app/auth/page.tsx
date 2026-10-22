@@ -3,6 +3,16 @@
 import { useState, type FormEvent } from 'react';
 import { createClient } from '@/lib/supabase-browser';
 
+function getSafeNextPath() {
+  const requested = new URLSearchParams(window.location.search).get('next');
+  if (!requested?.startsWith('/') || requested.startsWith('//') || requested.includes('\\')) return null;
+
+  const destination = new URL(requested, window.location.origin);
+  return destination.origin === window.location.origin
+    ? destination.pathname + destination.search + destination.hash
+    : null;
+}
+
 export default function Auth() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -24,13 +34,17 @@ export default function Auth() {
         return;
       }
 
+      const nextPath = getSafeNextPath();
+      const callbackUrl = new URL('/auth/callback', location.origin);
+      if (nextPath) callbackUrl.searchParams.set('next', nextPath);
+
       const result = mode === 'signin'
         ? await supabase.auth.signInWithPassword({ email, password })
         : await supabase.auth.signUp({
           email,
           password,
           options: {
-            emailRedirectTo: `${location.origin}/auth/callback`,
+            emailRedirectTo: callbackUrl.toString(),
           },
         });
 
@@ -40,6 +54,11 @@ export default function Auth() {
       }
 
       if (mode === 'signin') {
+        if (nextPath) {
+          location.href = nextPath;
+          return;
+        }
+
         const userId = result.data.user?.id;
         if (!userId) {
           setMessage('Sign-in succeeded, but CivicRaise could not load your account. Try again.');
@@ -62,7 +81,7 @@ export default function Auth() {
       }
 
       if (result.data.session) {
-        location.href = '/onboarding';
+        location.href = nextPath || '/onboarding';
         return;
       }
 
