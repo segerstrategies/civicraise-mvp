@@ -179,17 +179,26 @@ export default function Campaign() {
       <div className="card" style={{ marginBottom: 18 }}>
         <div className="eyebrow">FUNDING STATUS</div>
         <div className="metric">{formatMoney(raised / 100)}</div>
-        <p className="muted">of {formatMoney(goal / 100)} target · {Math.round(progress)}% funded · {remaining ? formatMoney(remaining / 100) + ' to go' : 'goal reached'}</p>
-        <div
-          className="progress"
-          role="progressbar"
-          aria-label="Campaign funding progress"
-          aria-valuemin={0}
-          aria-valuemax={100}
-          aria-valuenow={Math.round(progress)}
-        >
-          <div style={{ width: progress + '%' }} />
-        </div>
+        {goal > 0 ? (
+          <>
+            <p className="muted">
+              of {formatMoney(goal / 100)} target · {Math.round(progress)}% funded ·{' '}
+              {remaining ? formatMoney(remaining / 100) + ' to go' : 'goal reached'}
+            </p>
+            <div
+              className="progress"
+              role="progressbar"
+              aria-label="Campaign funding progress"
+              aria-valuemin={0}
+              aria-valuemax={100}
+              aria-valuenow={Math.round(progress)}
+            >
+              <div style={{ width: progress + '%' }} />
+            </div>
+          </>
+        ) : (
+          <p className="muted">No fundraising target has been set yet.</p>
+        )}
       </div>
 
       <div className="grid two">
