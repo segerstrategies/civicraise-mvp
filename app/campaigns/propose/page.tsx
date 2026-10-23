@@ -14,6 +14,7 @@ type Proposal = { id: string; bill: string | null; title: string; status: string
 
 export default function ProposeCampaignPage() {
   const [userId, setUserId] = useState<string | null>(null);
+  const [signInHref, setSignInHref] = useState('/auth');
   const [proposals, setProposals] = useState<Proposal[]>([]);
   const [bill, setBill] = useState('');
   const [title, setTitle] = useState('');
@@ -28,6 +29,8 @@ export default function ProposeCampaignPage() {
   useEffect(() => {
     let cancelled = false;
     const params = new URLSearchParams(window.location.search);
+    const returnTo = '/campaigns/propose' + window.location.search;
+    setSignInHref('/auth?' + new URLSearchParams({ next: returnTo }).toString());
     const billFromFeed = params.get('bill');
     const titleFromFeed = params.get('title');
     const sourceFromFeed = params.get('source');
@@ -106,7 +109,7 @@ export default function ProposeCampaignPage() {
 
   if (loading) return <div className="narrow"><h1>Propose a campaign</h1><p className="muted">Loading your account…</p></div>;
   if (!userId) {
-    return <div className="narrow"><div className="eyebrow">CAMPAIGN INTAKE</div><h1>Propose a campaign</h1><p className="muted">Sign in to send a proposal for review. It is free to propose a campaign.</p>{message && <p role="status">{message}</p>}<Link className="btn primary" href="/auth">Sign in</Link></div>;
+    return <div className="narrow"><div className="eyebrow">CAMPAIGN INTAKE</div><h1>Propose a campaign</h1><p className="muted">Sign in to send a proposal for review. It is free to propose a campaign.</p>{message && <p role="status">{message}</p>}<Link className="btn primary" href={signInHref}>Sign in</Link></div>;
   }
 
   return (
