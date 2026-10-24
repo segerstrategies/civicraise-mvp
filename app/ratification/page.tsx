@@ -249,14 +249,20 @@ export default function Ratification() {
         Review open ballots for campaigns you backed. Participation is weighted by your pledged dollars.
       </p>
 
-      {message && (
-        <div className="notice" role="alert">
-          {message} {hasSignInMessage && <Link href="/auth">Sign in</Link>}
-        </div>
-      )}
-
       {loading ? (
         <div className="card"><p className="muted">Loading open ballots…</p></div>
+      ) : message ? (
+        <div className="card">
+          <h2>{hasSignInMessage ? 'Sign in to review ballots' : 'Ballots unavailable'}</h2>
+          <p className="muted" role="alert">
+            {message} {hasSignInMessage && <Link href="/auth">Sign in</Link>}
+          </p>
+          {!hasSignInMessage && (
+            <button type="button" className="btn" onClick={() => window.location.reload()}>
+              Try again
+            </button>
+          )}
+        </div>
       ) : ballots.length === 0 ? (
         <div className="card">
           <h2>Review completed advocacy work</h2>
