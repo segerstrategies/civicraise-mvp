@@ -2,6 +2,7 @@ import './globals.css';
 import Link from 'next/link';
 import AuthControls from '@/components/AuthControls';
 import Navigation from '@/components/Navigation';
+import CivicRaiseGuide from '@/components/CivicRaiseGuide';
 
 export const metadata = {
   title: 'CivicRaise MVP',
@@ -18,6 +19,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <div className="auth-controls"><AuthControls /></div>
         </header>
         <main>{children}</main>
+        <CivicRaiseGuide />
       </body>
     </html>
   );
