@@ -24,6 +24,10 @@ function cents(value: number | undefined, legacyValue: number | undefined) {
   return (Number(legacyValue) || 0) * 100;
 }
 
+function issueKey(value: string) {
+  return value.trim().toLocaleLowerCase();
+}
+
 export default function CampaignBrowser({ campaigns }: { campaigns: Campaign[] }) {
   const [query, setQuery] = useState('');
   const [pledgeFilter, setPledgeFilter] = useState<'all' | 'open' | 'closed'>('all');
@@ -66,7 +70,9 @@ export default function CampaignBrowser({ campaigns }: { campaigns: Campaign[] }
           supabase.from('legislation_stances').select('bill_code').eq('user_id', user.id),
         ]);
         if (cancelled) return;
-        const declaredAreas = Array.isArray(profile?.interest_areas) ? profile.interest_areas : [];
+        const declaredAreas = Array.isArray(profile?.interest_areas)
+          ? profile.interest_areas.filter((area: unknown): area is string => typeof area === 'string')
+          : [];
         const billCodes = (stances || []).map((item: any) => item.bill_code).filter(Boolean);
         if (billCodes.length) {
           const { data: matchingLegislation } = await supabase
@@ -78,9 +84,9 @@ export default function CampaignBrowser({ campaigns }: { campaigns: Campaign[] }
           const stanceAreas = (matchingLegislation || []).flatMap((item: any) =>
             Array.isArray(item.issue_areas) ? item.issue_areas : []
           );
-          setInterestAreas(Array.from(new Set([...declaredAreas, ...stanceAreas])));
+          setInterestAreas(Array.from(new Set([...declaredAreas, ...stanceAreas].map(issueKey).filter(Boolean))));
         } else {
-          setInterestAreas(declaredAreas);
+          setInterestAreas(Array.from(new Set(declaredAreas.map(issueKey).filter(Boolean))));
         }
       } catch {
         // Recommendations are optional and do not block the public campaign list.
@@ -155,7 +161,7 @@ export default function CampaignBrowser({ campaigns }: { campaigns: Campaign[] }
       return goal > 0 ? cents(campaign.raised_cents, campaign.raised) / goal : 0;
     };
     const interestScore = (campaign: Campaign) =>
-      (campaign.issue_areas || []).filter((area) => interestAreas.includes(area)).length;
+      (campaign.issue_areas || []).filter((area) => interestAreas.includes(issueKey(area))).length;
 
     return filtered.sort((a, b) => {
       if (sortOrder === 'newest') {
