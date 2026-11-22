@@ -84,7 +84,11 @@ export default function CampaignBrowser({ campaigns }: { campaigns: Campaign[] }
           const stanceAreas = (matchingLegislation || []).flatMap((item: any) =>
             Array.isArray(item.issue_areas) ? item.issue_areas : []
           );
-          setInterestAreas(Array.from(new Set([...declaredAreas, ...stanceAreas].map(issueKey).filter(Boolean))));
+          const allAreas = [...declaredAreas, ...stanceAreas]
+            .filter((area: unknown): area is string => typeof area === 'string')
+            .map(issueKey)
+            .filter(Boolean);
+          setInterestAreas(Array.from(new Set(allAreas)));
         } else {
           setInterestAreas(Array.from(new Set(declaredAreas.map(issueKey).filter(Boolean))));
         }
