@@ -74,27 +74,37 @@ export default function ProposeCampaignPage() {
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!userId || saving || selectedAreas.length === 0) return;
-    setSaving(true);
-    setMessage('');
-    const supabase = createClient();
-    if (!supabase) {
-      setMessage('CivicRaise is not connected to its account service. Try again later.');
-      setSaving(false);
+
+    const goalAmount = Number(goal);
+    if (!Number.isFinite(goalAmount) || goalAmount < 100 || goalAmount > 1000000) {
+      setMessage('Enter a proposed fundraising target between $100 and $1,000,000.');
       return;
     }
 
-    const { data, error } = await supabase.from('campaign_proposals').insert({
-      submitted_by: userId,
-      bill: bill.trim() ? bill.trim().toUpperCase() : null,
-      title: title.trim(),
-      objective: objective.trim(),
-      proposed_goal_cents: Math.round(Number(goal) * 100),
-      issue_areas: selectedAreas,
-      source_url: sourceUrl.trim() || null,
-    }).select('id,bill,title,status,campaign_id,created_at').single();
+    setSaving(true);
+    setMessage('');
+    try {
+      const supabase = createClient();
+      if (!supabase) {
+        setMessage('CivicRaise is not connected to its account service. Try again later.');
+        return;
+      }
 
-    if (error) setMessage('Could not submit the proposal. Please try again.');
-    else {
+      const { data, error } = await supabase.from('campaign_proposals').insert({
+        submitted_by: userId,
+        bill: bill.trim() ? bill.trim().toUpperCase() : null,
+        title: title.trim(),
+        objective: objective.trim(),
+        proposed_goal_cents: Math.round(goalAmount * 100),
+        issue_areas: selectedAreas,
+        source_url: sourceUrl.trim() || null,
+      }).select('id,bill,title,status,campaign_id,created_at').single();
+
+      if (error) {
+        setMessage('Could not submit the proposal. Please try again.');
+        return;
+      }
+
       setProposals((current) => [data as Proposal, ...current]);
       setBill('');
       setTitle('');
@@ -103,8 +113,11 @@ export default function ProposeCampaignPage() {
       setSourceUrl('');
       setSelectedAreas([]);
       setMessage('Proposal submitted for CivicRaise admin review. Submitting a proposal is free and does not create a campaign or pledge.');
+    } catch {
+      setMessage('Could not submit the proposal. Check your connection and try again.');
+    } finally {
+      setSaving(false);
     }
-    setSaving(false);
   }
 
   if (loading) return <div className="narrow"><h1>Propose a campaign</h1><p className="muted">Loading your account…</p></div>;
