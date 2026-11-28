@@ -49,6 +49,7 @@ export default function Navigation() {
               key={link.href}
               href={link.href}
               aria-current={active ? 'page' : inSection ? 'location' : undefined}
+              style={inSection && !active ? { color: 'var(--ink)', fontWeight: 700 } : undefined}
               onClick={() => setOpen(false)}
             >
               {link.label}
