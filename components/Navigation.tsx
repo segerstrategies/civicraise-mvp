@@ -40,14 +40,15 @@ export default function Navigation() {
         data-open={open}
       >
         {links.map((link) => {
-          const active = pathname === link.href
+          const active = pathname === link.href;
+          const inSection = (link.href === '/campaigns' && pathname.startsWith('/campaigns/'))
             || (link.href === '/advocate/dashboard' && pathname.startsWith('/advocate/'));
 
           return (
             <Link
               key={link.href}
               href={link.href}
-              aria-current={active ? 'page' : undefined}
+              aria-current={active ? 'page' : inSection ? 'location' : undefined}
               onClick={() => setOpen(false)}
             >
               {link.label}
